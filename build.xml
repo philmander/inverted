@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Inverted" default="daily-build" basedir="." xmlns:ca="antlib:net.sourceforge.clearantlib">
+
+	<!-- build dirs -->
+	<property name="build.dir" value="${basedir}/build" />
+
+	<!-- src dirs -->
+	<property name="src.dir" value="${basedir}/src/main" />
+	<property name="test.dir" value="${basedir}/src/test" />
+	
+	<!-- other dirs -->
+	<property name="temp.dir" value="${basedir}/build/temp" />
+	<property name="archive.dir" value="${basedir}/archive" />
+	<property name="version.file" value="${basedir}/version.properties" />
+	
+	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${basedir}/lib/compiler.jar" />
+	
+	<target name="clean">
+		<echo>Doing clean...for ${build.dir}</echo>
+		<delete includeemptydirs="true">
+			<fileset dir="${build.dir}" includes="**/*" />
+		</delete>
+		<mkdir dir="${build.dir}/"/>
+		<echo>Doing clean... DONE</echo>
+	</target>
+
+	<target name="minify-javascript" depends="clean">
+		<echo>Minifying Javascript... </echo>
+		
+		<copy todir="${build.dir}/">
+			<fileset dir="${src.dir}" />
+		</copy>
+		
+		<!-- uncompressed -->
+		<concat destfile="${build.dir}/inverted.js">
+			<filelist dir="${build.dir}">
+				<file name="intro.js" />				
+				<file name="util/Namespace.js" />
+				<file name="util/Util.js" />
+				<file name="util/Require.js" />
+				<file name="ioc/ProtoFactory.js" />
+				<file name="ioc/AppContext.js" />			
+			</filelist>
+		</concat>
+		
+		<!-- compressed -->
+		<jscomp compilationLevel="simple" warning="verbose" debug="false" output="${build.dir}/inverted-min.js">
+			<sources dir="${build.dir}">
+				<file name="inverted.js" />								
+			</sources>
+		</jscomp>
+	
+		<echo>Minifying Javascript... DONE</echo>
+	</target>	
+	
+	<!-- Full Builds -->
+	
+	<target name="archive">
+		<echo>Archiving... </echo>
+		<property file="${version.file}" prefix="version" />
+		<property name="version-string" value="${version.major}.${version.minor}.${version.build}" />
+		
+		<property name="versioned.dir" value="${archive.dir}/inverted-${version-string}" />		
+		<mkdir dir="${versioned.dir}" />
+		
+		<copy todir="${versioned.dir}">
+		   <fileset dir="${build.dir}" />
+		</copy>
+		
+		<replace file="${versioned.dir}/inverted.js" token="@version@" value="${version-string}" />
+		<replace file="${versioned.dir}/inverted-min.js" token="@version@" value="${version-string}" />
+		
+		<move file="${versioned.dir}/inverted.js" tofile="${versioned.dir}/inverted-${version-string}.js"/>		 	
+	    <move file="${versioned.dir}/inverted-min.js" tofile="${versioned.dir}/inverted-min-${version-string}.js"/>
+		
+		<zip destfile="${versioned.dir}/inverted-${version-string}.zip">
+			<zipfileset dir="${versioned.dir}" prefix="inverted-js"/>
+				
+		</zip>
+		
+		<delete dir="${versioned.dir}/src"/>
+		<delete dir="${versioned.dir}/test"/>					
+		
+		<echo>Archiving... DONE</echo>
+	</target>
+	
+	<target name="test-build" depends="minify-javascript" description="Perform a full build without updating version numbers">
+	</target>
+		
+	<target name="daily-build" depends="minify-javascript" description="Perform a daily full build">
+		<echo>Building daily...</echo>
+		
+		<propertyfile file="${version.file}">
+			<entry key="build" value="+" operation="+" type="int" default="0" pattern="00" />
+		</propertyfile>	
+		
+		<antcall target="archive" />
+		
+		<echo>Building daily... DONE</echo>
+	</target>
+	
+	<target name="minor-build" depends="minify-javascript" description="Perform a minor full build">
+		<echo>Building minor...</echo>
+		
+		<propertyfile file="${version.file}">
+			<entry key="minor" value="+" operation="+" type="int" default="0" pattern="0" />
+			<entry key="build" value="1" />
+		</propertyfile>		
+		
+		<antcall target="archive" />
+		
+		<echo>Building minor... DONE</echo>
+	</target>
+	
+	<target name="major-build" depends="minify-javascript" description="Perform a major full build">
+		<echo>Building major...</echo>
+		
+		<propertyfile file="${version.file}">
+			<entry key="major" value="+" operation="+" type="int" default="0" pattern="0" />
+			<entry key="minor" value="1"  />
+			<entry key="build" value="1" />
+		</propertyfile>		
+		
+		<antcall target="archive" />
+		<echo>Building major... DONE</echo>
+	</target>
+</project>
