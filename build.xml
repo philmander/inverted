@@ -32,24 +32,30 @@
 		</copy>
 		
 		<!-- uncompressed -->
-		<concat destfile="${build.dir}/inverted.js">
-			<filelist dir="${build.dir}">
-				<file name="intro.js" />				
+		<concat destfile="${build.dir}/inverted.js" fixlastline="yes">
+			<filelist dir="${build.dir}">		
+				<file name="intro.js" />
 				<file name="util/Namespace.js" />
 				<file name="util/Util.js" />
 				<file name="util/Require.js" />
+				<file name="resolvers/resolvers.js" />	
 				<file name="ioc/ProtoFactory.js" />
 				<file name="ioc/AppContext.js" />			
 			</filelist>
 		</concat>
 		
+		<!-- strip out debugs -->
+		<copy file="${build.dir}/inverted.js" tofile="${build.dir}/inverted-min.js" />
+		<replaceregexp file="${build.dir}/inverted-min.js" flags="g"
+		               match="if\(DEBUG[^}]*}" replace=""/>
+		
 		<!-- compressed -->
 		<jscomp compilationLevel="simple" warning="verbose" debug="false" output="${build.dir}/inverted-min.js">
 			<sources dir="${build.dir}">
-				<file name="inverted.js" />								
+				<file name="inverted-min.js" />								
 			</sources>
 		</jscomp>
-	
+		
 		<echo>Minifying Javascript... DONE</echo>
 	</target>	
 	
@@ -64,7 +70,7 @@
 		<mkdir dir="${versioned.dir}" />
 		
 		<copy todir="${versioned.dir}">
-		   <fileset dir="${build.dir}" />
+		   <fileset dir="${build.dir}" includes="inverted**.js"/>
 		</copy>
 		
 		<replace file="${versioned.dir}/inverted.js" token="@version@" value="${version-string}" />

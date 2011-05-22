@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Proto Factory Test</title>
+
+<script type="text/javascript" src="http://yui.yahooapis.com/combo?3.3.0/build/yui/yui-min.js"></script>
+
+<script type="text/javascript"> window.DEBUG = true; </script>
+<script type="text/javascript" src="../../main/util/Namespace.js"></script>
+<script type="text/javascript" src="../../main/util/Util.js"></script>
+<script type="text/javascript" src="../../main/ioc/ProtoFactory.js"></script>
+
+</head>
+<body>
+<script type="text/javascript">
+    YUI().use("test", function(Y){
+    	
+       	window.test;
+        var protoFactory;
+        var testCase = new Y.Test.Case({
+            name : "Proto Factory Test",
+
+            setUp : function(){				         
+                
+            	window.test = {};
+            },
+
+            tearDown : function(){
+
+                protoFactory = null;
+            },
+			
+            /**
+             * Tests various methods of constructor and property injection
+             */
+            testInjection : function(){
+
+                var conf = {            
+                    injected : {           
+                        proto: "test.Injected",
+                        args: [
+                            //proto reference (short form)
+                            "*shortFormRef",
+                            //proto reference (long form)
+                            {
+                            	ref: "longFormRef"
+                            },
+                            //inline proto definition
+                            {
+                            	proto: "test.DependencyC"                            	
+                            },
+                            //literals
+                            "cString",
+                            10.123,                            
+                            true,
+                            false,
+                            null,
+                            //object params                            
+                            {
+                            	//proto reference (short form)
+                                shortRef: "*shortFormRef",
+                                //proto reference (long form)
+                                longRef : {
+                                	ref: "longFormRef"
+                                },
+                                //inline proto definition
+                                inline: {
+                                	proto: "test.DependencyC"                            	
+                                },
+                                //literals
+                                string: "cString",
+                                number: 10.456,                                
+                                boolTrue: true,
+                                boolFalse: false,
+                                nully: null,                            	
+                            }                             
+                        ],
+                        props: {
+                             pString: "pString",
+                             pNumber: 11.456,
+                             pBoolTrue: true,
+                             pBoolFalse: false,
+                             pNully: null,
+                             pShortRef: "*shortFormRef",
+                             pLongRef : {
+                             	ref: "longFormRef"
+                             },
+                        }
+                    },
+                    shortFormRef : {
+                    	proto : "test.DependencyA"
+                    },
+                    longFormRef : {
+                    	proto : "test.DependencyB"
+                    },                    
+                };
+                
+                test.Injected = function(shortRef, longRef, inline, string, number, boolTrue, boolFalse, nully, objArgs)
+                {
+                	this.cShortRef = shortRef;
+                	this.cLongRef = longRef;
+                	this.cInline = inline;
+                    this.cString = string;
+                    this.cNumber = number;                    
+                    this.cBoolTrue = boolTrue;
+                    this.cBoolFalse = boolFalse;
+                    this.cNully = nully;
+                    this.objArgs = objArgs;
+                };
+                
+                test.DependencyA = function()
+                {
+                	this.blah = "A";
+                };
+                
+                test.DependencyB = function()
+                {
+                	this.blah = "B";
+                };
+                
+                test.DependencyC = function()
+                {
+                	this.blah = "C";
+                };
+                
+                protoFactory = new inverted.ioc.ProtoFactory(conf);
+                var injected = protoFactory.getProto("injected");
+                                
+                //constructor injection assertions
+                Y.Assert.isInstanceOf(test.DependencyA, injected.cShortRef);
+                Y.Assert.isInstanceOf(test.DependencyB, injected.cLongRef);
+                Y.Assert.isInstanceOf(test.DependencyC, injected.cInline);
+                Y.Assert.areEqual("cString", injected.cString);
+                Y.Assert.areEqual(10.123, injected.cNumber);                
+                Y.Assert.isTrue(injected.cBoolTrue);
+                Y.Assert.isFalse(injected.cBoolFalse);
+                Y.Assert.isNull(injected.cNully);                                
+                
+                Y.Assert.isInstanceOf(test.DependencyA, injected.objArgs.shortRef);
+                Y.Assert.isInstanceOf(test.DependencyB, injected.objArgs.longRef);
+                Y.Assert.isInstanceOf(test.DependencyC, injected.objArgs.inline);
+                Y.Assert.areEqual("cString", injected.objArgs.string);
+                Y.Assert.areEqual(10.456, injected.objArgs.number);                
+                Y.Assert.isTrue(injected.objArgs.boolTrue);
+                Y.Assert.isFalse(injected.objArgs.boolFalse);
+                Y.Assert.isNull(injected.objArgs.nully);
+                
+                //property injection assertions
+                Y.Assert.isInstanceOf(test.DependencyA, injected.pShortRef);
+                Y.Assert.isInstanceOf(test.DependencyB, injected.pLongRef);
+                Y.Assert.areEqual("pString", injected.pString);
+                Y.Assert.areEqual(11.456, injected.pNumber);                
+                Y.Assert.isTrue(injected.pBoolTrue);
+                Y.Assert.isFalse(injected.pBoolFalse);
+                Y.Assert.isNull(injected.pNully);                
+            },    
+            			
+			testFactory: function() {
+            	
+				var conf = {				
+					car: {
+						proto: "test.F1Car",
+						props: {
+						    tyres: {						    		
+						    	factoryRef: "tyreFactory",
+						    	factoryMethod: "getTyre"
+						    }
+						}
+					},
+					tyreFactory: {
+						proto: "test.TyreFactory",						
+						scope: "singleton"
+					}
+				};
+				
+				test.F1Car = function() {
+					this.tyres = null;
+				};				
+				var env = {};								
+				test.WetTyre = function() {					
+				};
+				test.DryTyre = function() {					
+				};
+				test.TyreFactory = function() {					
+				};
+				test.TyreFactory.prototype.getTyre = function() {
+					return env.raining ? new test.WetTyre() : new test.DryTyre();
+				};
+				
+				protoFactory = new inverted.ioc.ProtoFactory(conf);
+				env.raining = true;
+                var rainCar = protoFactory.getProto("car");                
+                Y.Assert.isInstanceOf(test.WetTyre, rainCar.tyres);                
+                
+                env.raining = false;
+                var dryCar = protoFactory.getProto("car");                
+                Y.Assert.isInstanceOf(test.DryTyre, dryCar.tyres);                
+            },
+            
+			testInheritance: function() {
+            	
+				var conf = {					
+					animal : {
+						proto: "test.Animal"							
+					},						
+					dog : {
+						proto: "test.Dog",
+						extendsRef: "animal"
+					},
+					boxer: {
+						proto: "test.Boxer",
+						extendsRef: "dog"
+					}
+								
+				}
+				
+				test.Animal = function() {
+						
+				};
+				test.Animal.prototype.move = function() {
+					
+				};				
+				
+				test.Dog = function() {
+					
+				};
+				test.Dog.prototype.wagTail = function() {
+					
+				};
+				
+				test.Boxer = function(name)
+				{
+					this.name = name;
+				};
+				
+				protoFactory = new inverted.ioc.ProtoFactory(conf);
+                var boxer = protoFactory.getProto("boxer");
+                
+                Y.Assert.isNotUndefined(boxer.move);
+                Y.Assert.isNotUndefined(boxer.wagTail);
+                Y.Assert.isInstanceOf(test.Boxer, boxer);
+                Y.Assert.isInstanceOf(test.Dog, boxer);
+                Y.Assert.isInstanceOf(test.Animal, boxer);		
+                Y.Assert.areSame(test.Boxer, boxer.constructor);                
+            },
+            
+            /** 
+             * Test different scope types
+             */
+			testScopes: function() {
+            	
+				var conf = {
+					prototypeScope: {
+						proto: "test.PrototypeScope"												
+					},
+					singletonScope: {
+						proto: "test.SingletonScope",
+						scope: "singleton"
+					}				
+				};
+				
+				test.PrototypeScope = function()
+                {
+                	this.blah = Math.random();
+                };
+                
+                test.SingletonScope = function()
+                {
+                	this.blah = Math.random();
+                };
+                
+                protoFactory = new inverted.ioc.ProtoFactory(conf);
+                var prototype1 = protoFactory.getProto("prototypeScope");
+                var prototype2 = protoFactory.getProto("prototypeScope");
+                
+                var singleton1 = protoFactory.getProto("singletonScope");
+                var singleton2 = protoFactory.getProto("singletonScope");
+                
+                Y.Assert.areNotSame(prototype1, prototype2);
+                Y.Assert.areNotEqual(prototype1.blah, prototype2.blah);
+                
+                Y.Assert.areSame(singleton1, singleton2);
+                Y.Assert.areEqual(singleton1.blah, singleton2.blah);                                                      
+			}           
+        });
+
+        Y.Test.Runner.add(testCase);
+
+        var TestRunner = Y.Test.Runner;
+        TestRunner.run();
+
+    });
+</script>
+</body>
+</html>

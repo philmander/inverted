@@ -2,113 +2,120 @@
  * Dynamic loading of javascript dependencies Shortcut to quadro.Require.get()
  * is quadro.require()
  */
-(function(global, inverted){
+(function(global, inverted) {
 
-    var ns = inverted.namespace("inverted.util");
+	var ns = inverted.ns("inverted.util");
 
-    var _base = null;
+	var _defaultCharset = "UTF-8";
 
-    var _defaultCharset = "UTF-8";
+	ns.Require = function(timeout) {
 
-    var _cache = {};
+		this.timeout = timeout || 10000;
+		this.cache = {};
+	};
 
-    ns.Require = {};
+	/**
+	 * Clears cached javascript files
+	 */
+	ns.Require.prototype.clearCache = function() {
 
-    var loadTimeout = 10000;
+		this.cache = {};
+	};
 
-    /**
-     * Sets the base uri for which to load script files
-     * 
-     * @param base
-     *            a uri string
-     */
-    ns.Require.base = function(base){
+	/**
+	 * Loads a javascript file. See tests for examples.
+	 * 
+	 * @param scripts
+	 *            {String/Array} A string or array of strings of javascript
+	 *            files to load Each string can either be the name, src or
+	 *            namespace of the script to load.
+	 * @param callback
+	 *            {Function} A callback to execute once all scripts in the toGet
+	 *            param have loaded
+	 * @param context
+	 *            {Object} The context in which to execture the callback
+	 *            (optional)
+	 * @param charset
+	 *            {String} The charset to use when loading scripts. Defaults to
+	 *            UTF-8 (optional)
+	 */
+	ns.Require.prototype.load = function(scripts, callback, callbackContext, charset) {
 
-        _base = base;
-    };
+		var thisRequire = this;
 
-    /**
-     * Clears cached javascript files
-     */
-    ns.Require.clearCache = function(){
+		callbackContext = callbackContext || global;
+		charset = charset || _defaultCharset;
 
-        _cache = {};
-    };
+		if(typeof scripts === "string") {
+			scripts = [ scripts ];
+		}
 
-    /**
-     * Loads a javascript file. See tests for examples.
-     * 
-     * @param toGet
-     *            {String/Array} A string or array of strings of javascript
-     *            files to load Each string can either be the name, src or
-     *            namespace of the script to load.
-     * @param callback
-     *            {Function} A callback to execute once all scripts in the toGet
-     *            param have loaded
-     * @param context
-     *            {Object} The context in which to execture the callback
-     *            (optional)
-     * @param charset
-     *            {String} The charset to use when loading scripts. Defaults to
-     *            UTF-8 (optional)
-     */
-    ns.Require.get = function(scripts, callback, context, charset){
+		// load the scripts
+		var scriptsLoaded = [];
+		var numScripts = scripts.length;
 
-        context = context || this;
-        charset = charset || _defaultCharset;
+		var head = document.getElementsByTagName("head")[0] || document.documentElement;
 
-        if (!inverted.util.Util.isArray(scripts)){
-            scripts = [ scripts ];
-        }
+		for( var i = 0; i < numScripts; i++) {
+			(function(src) {
 
-        // load the scripts
-        var scriptsLoaded = 0;
-        var numScripts = scripts.length;
+				if(thisRequire.cache[src]) {
+					onScriptLoaded(src);
+				}
+				else {
+					var script = global.document.createElement("script");
+					script.type = "text/javascript";
+					script.src = src;
+					script.charset = charset;
 
-        var head = document.getElementsByTagName("head")[0] || document.documentElement;
+					var done = false;
+					script.onload = script.onreadystatechange = function() {
 
-        for ( var i = 0; i < numScripts; i++){
-            (function(src){
+						if(!done &&
+							(!this.readyState || this.readyState === "loaded" || this.readyState === "complete")) {
+							done = true;
+							onScriptLoaded(src);
+							thisRequire.cache[src] = true;
 
-                if (_cache[src]){
-                    onScriptLoaded(src);
-                }
-                else{
-                    var script = global.document.createElement("script");
-                    script.type = "text/javascript";
-                    script.src = src;
-                    script.charset = charset;
+							// Handle memory leak in IE
+							script.onload = script.onreadystatechange = null;
+							if(head && script.parentNode) {
+								head.removeChild(script);
+							}
+						}
+					};
 
-                    var done = false;
-                    script.onload = script.onreadystatechange = function(){
+					head.insertBefore(script, head.firstChild);
+				}
+			})(scripts[i]);
+		}
 
-                        if (!done
-                        && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete")){
-                            done = true;
-                            onScriptLoaded(src);
-                            _cache[src] = true;
+		// timeout
+		this.requireTimeout = global.setTimeout(function() {
 
-                            // Handle memory leak in IE
-                            script.onload = script.onreadystatechange = null;
-                            if (head && script.parentNode){
-                                head.removeChild(script);
-                            }
-                        }
-                    };
+			var notLoaded = [];
+			for( var i = 0; i < scripts.length; i++) {
+				if(inverted.util.inArray(scripts[i], scriptsLoaded) === -1) {
+					notLoaded.push(scripts[i]);
+				}
+			}
 
-                    head.insertBefore(script, head.firstChild);
-                }
-            })(scripts[i]);
-        }
+			if(typeof callback === "function") {
+				var message = notLoaded.join(", ") + " failed to load within " + thisRequire.timeout + " milis";
+				callback.apply(callbackContext, [ false, notLoaded, message ]);
+			}
+		}, this.timeout);
 
-        function onScriptLoaded(src){
+		// invoke callback function
+		function onScriptLoaded(src) {
 
-            if (++scriptsLoaded == numScripts){
-                callback.call(context);
-            }
-        }
-    };
-
-    // shortcut
-    inverted.require = ns.Require.get;
-})(window, inverted);
+			scriptsLoaded.push(src);
+			if(scriptsLoaded.length == numScripts) {
+				global.clearTimeout(thisRequire.requireTimeout);
+				if(typeof callback === "function") {
+					callback.apply(callbackContext, [ true, [], "" ]);
+				}
+			}
+		}
+	};
+})(window, window.inverted);
