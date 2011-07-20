@@ -10,16 +10,16 @@
 	 * @constructor
 	 * @param config
 	 */
-	ns.AppContext = function(config, env, protoFactory, require) {
+	ns.AppContext = function(config, profile, protoFactory, require) {
 
 		if(!(this instanceof ns.AppContext)) {
 			protoFactory = new inverted.ioc.ProtoFactory(config.protos);
 			require = new inverted.util.Require(10000);
-			return new ns.AppContext(config, env, protoFactory, require);
+			return new ns.AppContext(config, profile, protoFactory, require);
 		}
 
 		this.config = config;
-		this.env = env || "local";
+		this.profile = profile || "local";
 		this.protoFactory = protoFactory;
 		this.require = require;
 
@@ -27,14 +27,14 @@
 			this.srcResolver = config.srcResolver;
 		}
 		else if(typeof config.srcResolver == "object") {
-			this.srcResolver = config.srcResolver[this.env];
+			this.srcResolver = config.srcResolver[this.profile];
 		}
 		else {
 			this.srcResolver = inverted.resolvers.defaultSrcResolver;
 		}
 
 		config.srcBase = config.srcBase || "";
-		this.srcBase = typeof config.srcBase == "object" ? config.srcBase[this.env] : config.srcBase;
+		this.srcBase = typeof config.srcBase == "object" ? config.srcBase[this.profile] : config.srcBase;
 	};
 
 	// expose
@@ -77,7 +77,9 @@
 		}
 
 		// load all dependencies before attempting to create an instance
-		this.require.load(sources, function(success, notLoaded, failMessage) {
+		//TODO: single instance of require needs to do multople loads
+		var require = new inverted.util.Require(10000);
+		require.load(sources, function(success, notLoaded, failMessage) {
 
 			if(success) {
 
