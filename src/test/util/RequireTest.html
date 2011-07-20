@@ -29,7 +29,7 @@
 
                 protoFactory = null;
             },
-			            
+		          
             testGet : function(){
             	
             	var scripts = [
@@ -80,7 +80,55 @@
            			Y.Assert.isString(_message);
            			Y.Assert.areEqual(2, _notLoaded.length);
            		}, 1200);
-            }            
+            },
+           
+			testGetMultiple : function(){
+				
+				//TODO: fails if same instane of Require is used for each load
+            	
+            	var require1 = new inverted.util.Require(3000);
+            	var require2 = new inverted.util.Require(3000);
+            	var require3 = new inverted.util.Require(3000);
+            	
+            	var _success1, _notLoaded1, _message1, 
+            		_success2, _notLoaded2, _message2, 
+            		_success3, _notLoaded3, _message3;
+            	
+           		require1.load("../resources/RequireTest1.js", function(success, notLoaded, message) {
+           			
+           			console.log(success, notLoaded, message);
+           			_success1 = success;
+           			_notLoaded1 = notLoaded;
+           			_message1 = message;           			
+           		});	
+           		require2.load("../resources/RequireTest2.js", function(success, notLoaded, message) {
+           			
+           			console.log(success, notLoaded, message);
+           			_success2 = success;
+           			_notLoaded2 = notLoaded;
+           			_message2 = message;           			
+           		});	
+           		require3.load("../resources/RequireTest3.js", function(success, notLoaded, message) {
+           			
+           			console.log(success, notLoaded, message);
+           			_success3 = success;
+           			_notLoaded3 = notLoaded;
+           			_message3 = message;           			
+           		});	
+           		
+           		this.wait(function()
+           		{
+           			Y.Assert.isTrue(_success1, "success1");
+           			Y.Assert.isArray(_notLoaded1, "notloaded1");
+           			Y.Assert.isString(_message1, "message1");
+           			Y.Assert.isTrue(_success2, "success2");
+           			Y.Assert.isArray(_notLoaded2, "notloaded2");
+           			Y.Assert.isString(_message2, "success2");
+           			Y.Assert.isTrue(_success3, "success3");
+           			Y.Assert.isArray(_notLoaded3, "notloaded3");
+           			Y.Assert.isString(_message3, "success3");           			
+           		}, 4000);
+            }
         });
 
         Y.Test.Runner.add(testCase);
