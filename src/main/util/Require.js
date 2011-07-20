@@ -5,13 +5,17 @@
 (function(global, inverted) {
 
 	var ns = inverted.ns("inverted.util");
+	
+	var DEBUG = global.DEBUG || false;
 
 	var _defaultCharset = "UTF-8";
+	
+	var loadCount = 0;
 
 	ns.Require = function(timeout) {
 
 		this.timeout = timeout || 10000;
-		this.cache = {};
+		this.cache = {};		
 	};
 
 	/**
@@ -60,9 +64,19 @@
 			(function(src) {
 
 				if(thisRequire.cache[src]) {
+					
+					if(DEBUG) {
+						console.log(src + " already loaded.");
+					}
+					
 					onScriptLoaded(src);
 				}
 				else {
+					
+					if(DEBUG) {
+						console.log("Loading " + src + ".");
+					}
+					
 					var script = global.document.createElement("script");
 					script.type = "text/javascript";
 					script.src = src;
@@ -90,7 +104,7 @@
 			})(scripts[i]);
 		}
 
-		// timeout
+		// timeout		
 		this.requireTimeout = global.setTimeout(function() {
 
 			var notLoaded = [];
@@ -105,12 +119,22 @@
 				callback.apply(callbackContext, [ false, notLoaded, message ]);
 			}
 		}, this.timeout);
+		
+		if(DEBUG) {
+			console.log("Load timeout set (" + this.requireTimeout + ")");
+		}		
 
 		// invoke callback function
 		function onScriptLoaded(src) {
 
 			scriptsLoaded.push(src);
+					
 			if(scriptsLoaded.length == numScripts) {
+				
+				if(DEBUG) {
+					console.log("Clearing timeout for " + src + "(" + thisRequire.requireTimeout + ")");
+				}		
+				
 				global.clearTimeout(thisRequire.requireTimeout);
 				if(typeof callback === "function") {
 					callback.apply(callbackContext, [ true, [], "" ]);
