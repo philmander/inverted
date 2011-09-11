@@ -4,7 +4,46 @@ Inverted is Javascript Inversion of Control container.
 
 It manages dependency injection and dependency management, automatically loading scripts which cannot be resolved. Its aim is to make large Javascript applications easier to manage and higher quality encouraging code modularisation, separations of concerns and good unit testing pratices.
 
+Inverted is just 2.39KB minified and GZipped.
+
 The core of a Javascript application that uses Inverted is the application configuration. Application configuratin is written in Javascript and wires the application together. It mainly consists of proto definitions. Protos are prototypal objects designed to be constructed using the _new_ keyword. In classical terms, Javascript classes and like _beans_ in Spring IOC for Java.
+
+```javascript
+var applicationConfig = {
+	protos: {
+		"protoId" : {
+			proto: "namespace.Constructor",
+			//other config
+		},
+		"anotherProtoId" : {
+			proto: "namespace.Constructor",
+			//other config
+		}
+	}
+}
+```
+
+Inverted defines one global function _AppContext_. Which can be called using the application configuration as an argument to create an Application Context object.
+
+```javascript
+var appContext = AppContext(applicationConfig)
+```
+
+Protos defined in the application configuration can then be retrieved using the getProto function passing _n_ proto definition id's and a callback with _n_ arguments, one for each instance of a proto instantiated:
+
+```javascript
+appContext.getProto("myProto", function(myProto) {
+	myProto.doStuff();
+});
+appContext.getProto("myProto", "myProto2", "myProtoN", function(myProto, myProto2, myProtoN) {
+	myProto.doStuff();
+	myProto2.doStuff();
+	myProtoN.doStuff();
+});
+```
+
+
+Only one AppContext per application should be created per application. It is not a singleton
 
 This file explains the core concepts of Inverted by example. Most examples show the application code consisting of the proto implementations, the application configuration and example usage of the Inverted container.
 
