@@ -47,6 +47,37 @@ appContext.getProto("myObj", function(myObj) {
 
 ```
 
+###Context
+Inverted attempts to resolve protos on the global scope by default, however an alternative scope context can be specified when getting the _AppContext_
+
+```javascript
+
+var root = {};
+
+// application code
+root.MyObj = function() {
+
+};
+
+// application config
+var conf = {
+	protos : {
+		myObj : {
+			proto : "MyObj"
+		}
+	}
+};
+
+// use the container
+var appContext = AppContext(conf, null, root);
+
+appContext.getProto("myObj", function(myObj) {
+
+	log(myObj instanceof MyObj === true); // true
+});
+
+```
+
 ###Constructor injection: Literals and regular arguments 
 Literal values are set in the application configuration
 
