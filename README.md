@@ -1,5 +1,13 @@
 #Inverted
 
+Inverted is Javascript Inversion of Control container. 
+
+It manages dependency injection and dependency management, automatically loading scripts which cannot be resolved. Its aim is to make large Javascript applications easier to manage and higher quality encouraging code modularisation, separations of concerns and good unit testing pratices.
+
+The core of a Javascript application that uses Inverted is the application configuration. Application configuratin is written in Javascript and wires the application together. It mainly consists of proto definitions. Protos are prototypal objects designed to be constructed using the _new_ keyword. In classical terms, Javascript classes and like _beans_ in Spring IOC for Java.
+
+This file explains the core concepts of Inverted by example. Most examples show the application code consisting of the proto implementations, the application configuration and example usage of the Inverted container.
+
 ##Examples
 
 ###Instantiation
