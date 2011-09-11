@@ -29,7 +29,7 @@ Inverted defines one global function _AppContext_. Which can be called using the
 var appContext = AppContext(applicationConfig)
 ```
 
-Protos defined in the application configuration can then be retrieved using the getProto function passing _n_ proto definition id's and a callback with _n_ arguments, one for each instance of a proto instantiated:
+Protos defined in the application configuration can then be retrieved using the _getProto_ function passing _n_ proto definition id's and a callback with _n_ arguments, one for each instance of a proto instantiated:
 
 ```javascript
 appContext.getProto("myProto", function(myProto) {
@@ -42,8 +42,7 @@ appContext.getProto("myProto", "myProto2", "myProtoN", function(myProto, myProto
 });
 ```
 
-
-Only one AppContext per application should be created per application. It is not a singleton
+Only one AppContext per application should be created per application. It is not a singleton.
 
 This file explains the core concepts of Inverted by example. Most examples show the application code consisting of the proto implementations, the application configuration and example usage of the Inverted container.
 
@@ -107,8 +106,8 @@ var conf = {
 	}
 };
 
-// use the container
-var appContext = AppContext(conf, null, root);
+// use the container with a different context
+var appContext = AppContext(conf, null, root); //the null here is a profile which is explained later
 
 appContext.getProto("myObj", function(myObj) {
 
