@@ -79,7 +79,7 @@ var appContext = AppContext(conf);
 
 appContext.getProto("myObj", function(myObj) {
 
-	log(myObj instanceof MyObj === true); // true
+	log(myObj instanceof MyObj); // true
 	log(myObj.callMe() === "Thanks for calling me"); // true
 });
 
@@ -111,7 +111,7 @@ var appContext = AppContext(conf, null, root); //the null here is a profile whic
 
 appContext.getProto("myObj", function(myObj) {
 
-	log(myObj instanceof MyObj === true); // true
+	log(myObj instanceof MyObj); // true
 });
 
 ```
@@ -241,9 +241,9 @@ var appContext = AppContext(conf);
 
 appContext.getProto("myObjOne", function(obj1) {
 
-	log(obj1 instanceof myapp.MyObjOne === true); // true
-	log(obj1.obj2 instanceof myapp.MyObjTwo === true); // true
-	log(obj1.obj2.obj3 instanceof myapp.MyObjThree === true); // true
+	log(obj1 instanceof myapp.MyObjOne); // true
+	log(obj1.obj2 instanceof myapp.MyObjTwo); // true
+	log(obj1.obj2.obj3 instanceof myapp.MyObjThree); // true
 	log(obj1.obj2.obj3.message === "Hello!"); // true
 });
 
@@ -366,9 +366,9 @@ var appContext = AppContext(conf);
 
 appContext.getProto("myObjOne", function(obj1) {
 
-	log(obj1 instanceof myapp.MyObjOne === true); // true
-	log(obj1.obj2 instanceof myapp.MyObjTwo === true); // true
-	log(obj1.obj2.obj3 instanceof myapp.MyObjThree === true); // true
+	log(obj1 instanceof myapp.MyObjOne); // true
+	log(obj1.obj2 instanceof myapp.MyObjTwo); // true
+	log(obj1.obj2.obj3 instanceof myapp.MyObjThree); // true
 	log(obj1.obj2.obj3.message === "Hello!"); // true
 });
 
@@ -404,8 +404,8 @@ var appContext = AppContext(conf);
 
 appContext.getProto("myObjOne", "myObjTwo", "myObjN", function(myObj1, myObj2, myObjN) {
 
-	log(myObj1 instanceof myapp.MyObjOne === true); // true
-	log(myObj2 instanceof myapp.MyObjTwo === true); // true	
+	log(myObj1 instanceof myapp.MyObjOne); // true
+	log(myObj2 instanceof myapp.MyObjTwo); // true	
 });
 	
 ```
