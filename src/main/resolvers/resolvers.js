@@ -1,6 +1,6 @@
-(function(global, inverted) {
+(function(global) {
 
-	var ns = inverted.ns("inverted.resolvers");
+	var ns = global.inverted.ns("inverted.resolvers");
 
 	ns.defaultSrcResolver = function(toGet, base) {
 
@@ -11,4 +11,4 @@
 		return scriptUri;
 	};
 
-})(window, window.inverted);
+})(this);

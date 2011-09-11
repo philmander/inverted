@@ -2,8 +2,9 @@
  * Dynamic loading of javascript dependencies Shortcut to quadro.Require.get()
  * is quadro.require()
  */
-(function(global, inverted) {
+(function(global) {
 
+	var inverted = global.inverted;
 	var ns = inverted.ns("inverted.util");
 	
 	var DEBUG = global.DEBUG || false;
@@ -52,6 +53,14 @@
 
 		if(typeof scripts === "string") {
 			scripts = [ scripts ];
+		}
+		
+		//exit early if no scripts to load
+		if(scripts.length == 0) {
+			if(typeof callback === "function") {
+				callback.apply(callbackContext, [ true, [], "" ]);
+			}
+			return;
 		}
 
 		// load the scripts
@@ -142,4 +151,4 @@
 			}
 		}
 	};
-})(window, window.inverted);
+})(this);

@@ -1,6 +1,8 @@
-(function(global, inverted) {
+(function(global) {
 
+	var inverted = global.inverted;
 	var ns = inverted.ns("inverted.ioc");
+	
 
 	var DEBUG = global.DEBUG || false;
 
@@ -10,12 +12,13 @@
 	 * @constructor
 	 * @param config
 	 */
-	ns.AppContext = function(config, profile, protoFactory, require) {
+	ns.AppContext = function(config, profile, ctx, protoFactory, require) {
 
 		if(!(this instanceof ns.AppContext)) {
+			config.ctx = ctx;
 			protoFactory = new inverted.ioc.ProtoFactory(config.protos);
-			require = new inverted.util.Require(10000);
-			return new ns.AppContext(config, profile, protoFactory, require);
+			require = new inverted.util.Require(5000);
+			return new ns.AppContext(config, profile, null, protoFactory, require);
 		}
 
 		this.config = config;
@@ -69,17 +72,19 @@
 
 		// convert dependencies into source files
 		var sources = [];
-		for( var i = 0; i < deps.length; i++) {
-			var src = this.srcResolver(deps[i], this.srcBase);
-			if(inverted.util.inArray(src, sources) == -1) {
-				sources.push(src);
-			}
+		for( var j = 0; j < deps.length; j++) {
+			
+			if(!this.protoFactory.parseProtoString(deps[j])) {
+				var src = this.srcResolver(deps[j], this.srcBase);
+				if(inverted.util.inArray(src, sources) == -1) {
+					sources.push(src);
+				}
+			}			
 		}
 
 		// load all dependencies before attempting to create an instance
-		//TODO: single instance of require needs to do multople loads
-		var require = new inverted.util.Require(10000);
-		require.load(sources, function(success, notLoaded, failMessage) {
+		//TODO: single instance of require needs to do multiple loads
+		this.require.load(sources, function(success, notLoaded, failMessage) {
 
 			if(success) {
 
@@ -193,4 +198,4 @@
 		return deps;
 	};
 
-})(window, window.inverted);
+})(this);

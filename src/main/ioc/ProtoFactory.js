@@ -1,5 +1,6 @@
-(function(global, inverted) {
+(function(global) {
 
+	var inverted = global.inverted;
 	var ns = inverted.ns("inverted.ioc");
 
 	var DEBUG = global.DEBUG || false;
@@ -12,7 +13,8 @@
 	 */
 	ns.ProtoFactory = function(config) {
 
-		this.config = config;
+		config.ctx = config.ctx || global;
+		this.config = config;		
 	};
 
 	/**
@@ -69,8 +71,8 @@
 
 		var instance = null;
 
-		if(typeof proto === "string") {
-			proto = window.eval(proto);
+		if(typeof proto === "string") {			
+			proto = this.parseProtoString(proto);
 		}
 
 		// constructor injection
@@ -226,7 +228,7 @@
 
 		// backup methods/props
 		var methods = {};
-		for( var method in proto.prototype) {
+		for( var method in proto.prototype) {			
 			methods[method] = proto.prototype[method];
 		}
 
@@ -235,12 +237,17 @@
 		proto.prototype._super = superProto.constructor;
 
 		// put methods back
-		for( var method in methods) {
-			proto.prototype[method] = methods[method];
+		for( var methodBackup in methods) {
+			proto.prototype[methodBackup] = methods[methodBackup];
 		}
 
-		// fix the contructor or the world will end
+		// fix the contructor 
 		proto.prototype.constructor = proto;
+	};
+	
+	ns.ProtoFactory.prototype.parseProtoString = function(protoString) {
+		
+		return inverted.util.parseProtoString(protoString, this.config.ctx);
 	};
 
 	/**
@@ -261,4 +268,4 @@
 		}
 	};
 
-})(window, window.inverted);
+})(this);

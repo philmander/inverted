@@ -34,4 +34,24 @@
 
 		return -1;
 	};
-})(window);
+	
+	ns.parseProtoString = function(protoString, root) {
+		
+		var obj = root;
+		var parts = protoString.split(".");		
+		
+		for(var i = 0, part; part = parts[i]; i++) {
+			
+			if(typeof obj[part] === "undefined") {
+				return null;
+			} else if(i === parts.length - 1 && typeof obj[part] !== "function") {
+				return null;
+			} else {
+				obj = obj[part];
+			}						
+		}			
+		
+		return obj;
+	};
+	
+})(this);

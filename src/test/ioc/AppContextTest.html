@@ -3,17 +3,17 @@
 <head>
 <title>AppContext Test</title>
 
-<script type="text/javascript" src="http://yui.yahooapis.com/combo?3.3.0/build/yui/yui-min.js"></script>
+<script src="http://yui.yahooapis.com/combo?3.3.0/build/yui/yui-min.js"></script>
 
-<script type="text/javascript"> window.DEBUG = true; </script>
-<script type="text/javascript" src="../../main/util/Namespace.js"></script>
-<script type="text/javascript" src="../../main/util/Util.js"></script>
-<script type="text/javascript" src="../../main/resolvers/resolvers.js"></script>
-<script type="text/javascript" src="../../main/ioc/AppContext.js"></script>
+<script> window.DEBUG = true; </script>
+<script src="../../main/util/Namespace.js"></script>
+<script src="../../main/util/Util.js"></script>
+<script src="../../main/resolvers/resolvers.js"></script>
+<script src="../../main/ioc/AppContext.js"></script>
 
 </head>
 <body>
-<script type="text/javascript">
+<script>
     YUI().use("test", function(Y){    	
         
         var testCase = new Y.Test.Case({
@@ -72,10 +72,12 @@
              		};
              		return new proto(id);
                	 };
-                 mockProtoFactory.getProtoConfig = function(id)
-             	 {
+                 mockProtoFactory.getProtoConfig = function(id) {
              		return conf.protos[id];
-             	 };                             
+             	 };              
+             	 mockProtoFactory.parseProtoString = function() {
+             		 return true;
+             	 };
 
                 var mockRequire = {}
                 mockRequire.load = function(scripts, callback, ctx) {
@@ -90,9 +92,9 @@
                 	callback.apply(ctx, [true, [], ""]);                	
                 };
          
-                var appContext = new AppContext(conf, "myEnv", mockProtoFactory, mockRequire);
+                var appContext = new AppContext(conf, "myEnv", null, mockProtoFactory, mockRequire);
                 
-                Y.Assert.areEqual("myEnv", appContext.env);
+                Y.Assert.areEqual("myEnv", appContext.profile);
                 appContext.getProto("proto1", "proto7", function(proto1, proto7) {
                 	Y.Assert.areEqual("proto1", proto1.id);
                 	Y.Assert.areEqual("proto7", proto7.id);
@@ -138,7 +140,10 @@
                 mockProtoFactory.getProtoConfig = function(id)
             	{
             		return conf.protos[id];
-            	};                             
+            	};
+            	mockProtoFactory.parseProtoString = function() {
+            		return true;
+            	};
 
             	var expected = [];
                 var mockRequire = {};
@@ -151,11 +156,11 @@
                		callback.apply(ctx, [true, [], ""]);                	
                 };
         
-                var prodAppContext = new AppContext(conf, "prod", mockProtoFactory, mockRequire);                               
+                var prodAppContext = new AppContext(conf, "prod", null, mockProtoFactory, mockRequire);                               
                 expected = [ "/js/prod.js"];
                 prodAppContext.getProto("proto1");
                 
-                var devAppContext = new AppContext(conf, "dev", mockProtoFactory, mockRequire);                               
+                var devAppContext = new AppContext(conf, "dev", null, mockProtoFactory, mockRequire);                               
                 expected = [ "/js/src/dev.js"];
                 devAppContext.getProto("proto1");
            }                        

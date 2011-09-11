@@ -71,4 +71,4 @@
 
 	// shortcut
 	global.inverted.ns = Namespace.set;
-})(window);
+})(this);
