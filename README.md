@@ -5,7 +5,7 @@
 ###Instantiation
 A simple example of using the Inverted container to construct an instance of an  object. In this simple example the result is the eqivalent of using the new keyword. 
 i.e. new MyObj();
-But no explicit type is referenced when actually getting the instance.
+But no explicit type is referenced when actually getting the instance using the container.
 
 ```javascript
 
@@ -242,6 +242,7 @@ appContext.getProto("myObj", function(myObj) {
 
 ```javascript
 
+//application code
 global.myapp = {};
 
 global.myapp.MyObjOne = function() {
@@ -259,6 +260,7 @@ global.myapp.MyObjThree = function() {
 	this.message;
 };
 
+//application config
 var conf = {
 	protos : {
 		myObjOne : {
@@ -282,6 +284,7 @@ var conf = {
 	}
 };
 
+//use the container
 var appContext = AppContext(conf);
 
 appContext.getProto("myObjOne", function(obj1) {
@@ -298,6 +301,7 @@ appContext.getProto("myObjOne", function(obj1) {
 
 ```javascript
 
+//application code
 global.myapp = {};
 myapp.MyObjOne = function() {
 
@@ -306,6 +310,7 @@ myapp.MyObjTwo = function() {
 
 };
 
+//application config
 var conf = {
 	protos : {
 		myObjOne : {
@@ -317,6 +322,7 @@ var conf = {
 	}
 };
 
+//use the container
 var appContext = AppContext(conf);
 
 appContext.getProto("myObjOne", "myObjTwo", "myObjN", function(myObj1, myObj2, myObjN) {
@@ -329,10 +335,11 @@ appContext.getProto("myObjOne", "myObjTwo", "myObjN", function(myObj1, myObj2, m
 
 ###Scopes
 
-Inverted supports two scopes prototype and singleton. The first is used by default and does not need to be explicitly specified in the application config. Protos that use the singleton scope will only be instantiated once.
+Inverted supports two scopes _prototype_ and _singleton_. The first is used by default and does not need to be explicitly specified in the application config. Protos that use the singleton scope will only be instantiated once.
 
 ```javascript
 
+//application code
 global.myapp = {};
 myapp.MySingleton = function() {
 
@@ -341,6 +348,7 @@ myapp.MyProto = function() {
 
 };
 
+//application config
 var conf = {
 	protos : {
 		myProto : {
@@ -354,6 +362,7 @@ var conf = {
 	}
 };
 
+//use the container
 var appContext = AppContext(conf);
 
 var singleton1, singleton2, prototype1, prototype2;
@@ -423,7 +432,7 @@ var conf = {
 	}
 };
 
-// use the inerted container
+// use the container
 var appContext = AppContext(conf);
 
 appContext.getProto("myProto", function(myProto) {
@@ -437,7 +446,7 @@ appContext.getProto("myProto", function(myProto) {
 ```
 
 ###Resolving dependencies 
-If a proto is undefined Inverted will attempt to resolve by loading the Javascript file it is defined in. Inverted uses a source resolver function to map a script base and the proto definition to a javascript file.
+If a proto is undefined Inverted will attempt to resolve it by loading the Javascript file it is defined in. Inverted uses a source resolver function to map a script base and the proto definition to a javascript file.
 
 In a local development environment where the code base is heavily modularised, this means only many script tags do not need to be included.
 
@@ -463,7 +472,7 @@ var conf = {
 	}
 };
 
-// use the inerted container
+// use the container
 var appContext = AppContext(conf);
 
 appContext.getProto("myProto", function(myProto) {
@@ -509,7 +518,7 @@ var conf = {
 	}
 };
 
-// use the inerted container
+// use the container
 var appContext = AppContext(conf, "prod");
 
 appContext.getProto("myProto", function(myProto) {
@@ -569,7 +578,7 @@ Factory methods can be used to generate injected values
 ```
 
 ###Injecting utilities 
-Utilitiy classes can as prototypal objects with singleton scope and injected unobtrusively using property injection
+Utilitiy classes can be written as prototypal objects with singleton scope and injected as dependencies unobtrusively using property injection
 
 ```javascript
 
@@ -618,13 +627,5 @@ appContext.getProto("myProto", function(myProto) {
 
 	log(myProto.doSomething()); // true
 });
-
-```
-
-###
-
-
-```javascript
-
 
 ```
