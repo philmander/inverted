@@ -55,8 +55,12 @@ This file explains the core concepts of Inverted by example. Most examples show 
 ##Examples
 
 ###Instantiation
-A simple example of using the Inverted container to construct an instance of an  object. In this simple example the result is the eqivalent of using the new keyword. 
-i.e. new MyObj();
+A simple example of using the Inverted container to construct an instance of an  object. In this simple example the result is the eqivalent of using the new keyword. i.e. 
+
+```javascript
+var myObj = new MyObj();
+```
+
 But no explicit type is referenced when actually getting the instance using the container.
 
 ```javascript
