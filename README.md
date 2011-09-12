@@ -380,43 +380,8 @@ appContext.getProto("myObjOne", function(obj1) {
 
 ```
 
-###Getting multiple protos in the same callback
 
-```javascript
-
-//application code
-global.myapp = {};
-myapp.MyObjOne = function() {
-
-};
-myapp.MyObjTwo = function() {
-
-};
-
-//application config
-var conf = {
-	protos : {
-		myObjOne : {
-			proto : "myapp.MyObjOne"
-		},
-		myObjTwo : {
-			proto : "myapp.MyObjTwo"
-		}
-	}
-};
-
-//use the container
-var appContext = AppContext(conf);
-
-appContext.getProto("myObjOne", "myObjTwo", "myObjN", function(myObj1, myObj2, myObjN) {
-
-	log(myObj1 instanceof myapp.MyObjOne); // true
-	log(myObj2 instanceof myapp.MyObjTwo); // true	
-});
-	
-```
-
-###Scopes
+###Proto scopes
 
 Inverted supports two scopes _prototype_ and _singleton_. The first is used by default and does not need to be explicitly specified in the application config. Protos that use the singleton scope will only be instantiated once.
 
