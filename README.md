@@ -2,7 +2,7 @@
 
 Inverted is Javascript Inversion of Control container. 
 
-It manages dependency injection and dependency management, automatically loading scripts which cannot be resolved. Its aim is to make large Javascript applications easier to manage and higher quality encouraging code modularisation, separations of concerns and good unit testing pratices.
+It manages dependency injection and dependency management, automatically loading scripts which cannot be resolved. Its aim is to make large Javascript applications easier to manage and higher quality, encouraging code modularisation, separations of concerns and good unit testing pratices.
 
 Inverted is just 2.39KB minified and GZipped.
 
