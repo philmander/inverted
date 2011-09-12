@@ -46,6 +46,12 @@ Only one AppContext per application should be created per application. It is not
 
 This file explains the core concepts of Inverted by example. Most examples show the application code consisting of the proto implementations, the application configuration and example usage of the Inverted container.
 
+###Road map
+
+* Inverted is currently only built to run in the browser. Node support also needed.
+* ...
+
+
 ##Examples
 
 ###Instantiation
