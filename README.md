@@ -59,6 +59,7 @@ A simple example of using the Inverted container to construct an instance of an 
 
 ```javascript
 var myObj = new MyObj();
+myObj.callMe();
 ```
 
 But no explicit type is referenced when actually getting the instance using the container.
