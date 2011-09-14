@@ -498,9 +498,9 @@ appContext.getProto("myProto", function(myProto) {
 ```
 
 ###Resolving dependencies 
-If a proto is undefined Inverted will attempt to resolve it by loading the Javascript file it is defined in. Inverted uses a source resolver function to map a script base and the proto definition to a javascript file.
+If a proto is undefined Inverted will attempt to resolve it by loading the Javascript file it is defined in. Inverted uses a source resolver function to map a script base and the proto definition to a javascript file location.
 
-In a local development environment where the code base is heavily modularised, this means only many script tags do not need to be included.
+In a local development environment where the code base is heavily modularised, this means the developer does not have to include lists of script tags in the html source. All the information required is in the application configuration and dependencies are lazy loaded as and when required.
 
 
 ```javascript
