@@ -49,7 +49,8 @@ This file explains the core concepts of Inverted by example. Most examples show 
 ###Road map
 
 * Inverted is currently only built to run in the browser. Node support also needed.
-* ...
+* Add 'static' scope, for injecting objects which are not instances
+* 
 
 
 ##Examples
