@@ -14,7 +14,7 @@
 	ns.ProtoFactory = function(config) {
 
 		config.ctx = config.ctx || global;
-		this.config = config;		
+		this.config = config;
 	};
 
 	/**
@@ -32,10 +32,21 @@
 		var protoData = this.getProtoConfig(id);
 
 		var instance = null;
+
+		// for static just get a reference
+		if(protoData.scope == "static") {
+
+			if(DEBUG) {
+				console.debug("Getting reference for ", id, "...");
+			}
+
+			if(typeof protoData.proto === "string") {
+				instance = this.parseProtoString(protoData.proto);
+			}
 		// create an instance if not singleton or singleton and no instance
 		// defined yet (lazy loaded singletons)
-		if((!protoData.scope || protoData.scope != "singleton") ||
-			(protoData.scope == "singleton" && !protoData.instance)) {
+		} else if((!protoData.scope || protoData.scope != "singleton") ||
+				(protoData.scope == "singleton" && !protoData.instance)) {
 
 			if(DEBUG) {
 				console.debug("Creating new instance for ", id, "...");
@@ -71,7 +82,7 @@
 
 		var instance = null;
 
-		if(typeof proto === "string") {			
+		if(typeof proto === "string") {
 			proto = this.parseProtoString(proto);
 		}
 
@@ -117,7 +128,7 @@
 			break;
 		case 10:
 			instance = new proto(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8],
-				args[9]);
+					args[9]);
 			break;
 		default:
 			throw new Error("Instances have 10 arg limit");
@@ -131,8 +142,7 @@
 
 					if(typeof instance[propName] == "function") {
 						instance[propName].apply(instance, propertyArgs[0]);
-					}
-					else {
+					} else {
 						instance[propName] = propertyArgs[0];
 					}
 				}
@@ -155,8 +165,7 @@
 
 		if(factoryMethod) {
 			return factory[factoryMethod].apply(factory);
-		}
-		else {
+		} else {
 			throw new Error("No factory method defined with " + factoryRef);
 		}
 	};
@@ -186,14 +195,11 @@
 				// if arg has ref
 				if((isObject && argData.ref) || (typeof argData === "string" && argData.match(/^\*[^\*]/) !== null)) {
 					args[i] = this.getProto(argData.ref || argData.substr(1));
-				}
-				else if(isObject && argData.factoryRef) {
+				} else if(isObject && argData.factoryRef) {
 					args[i] = this._getProtoFromFactory(argData.factoryRef, argData.factoryMethod);
-				}
-				else if(isObject && argData.proto) {
+				} else if(isObject && argData.proto) {
 					args[i] = this._createInstance(argData.proto, argData.args, argData.props);
-				}
-				else if(isObject) {
+				} else if(isObject) {
 					args[i] = {};
 					// if arg is object containing values
 					for( var key in argData) {
@@ -202,20 +208,16 @@
 
 							if(obj && (obj.ref || (typeof obj === "string" && obj.match(/^\*[^\*]/) !== null))) {
 								args[i][key] = this.getProto(obj.ref || obj.substr(1));
-							}
-							else if(obj && obj.factoryRef) {
+							} else if(obj && obj.factoryRef) {
 								args[i][key] = this._getProtoFromFactory(obj.factoryRef, obj.factoryMethod);
-							}
-							else if(obj && obj.proto) {
+							} else if(obj && obj.proto) {
 								args[i][key] = this._createInstance(obj.proto, obj.args, obj.props);
-							}
-							else {
+							} else {
 								args[i][key] = obj;
 							}
 						}
 					}
-				}
-				else {
+				} else {
 					// just a value
 					args[i] = argData;
 				}
@@ -228,7 +230,7 @@
 
 		// backup methods/props
 		var methods = {};
-		for( var method in proto.prototype) {			
+		for( var method in proto.prototype) {
 			methods[method] = proto.prototype[method];
 		}
 
@@ -241,12 +243,12 @@
 			proto.prototype[methodBackup] = methods[methodBackup];
 		}
 
-		// fix the contructor 
+		// fix the contructor
 		proto.prototype.constructor = proto;
 	};
-	
+
 	ns.ProtoFactory.prototype.parseProtoString = function(protoString) {
-		
+
 		return inverted.util.parseProtoString(protoString, this.config.ctx);
 	};
 
@@ -262,8 +264,7 @@
 
 		if(this.config.hasOwnProperty(id)) {
 			return config[id];
-		}
-		else {
+		} else {
 			throw new Error("No proto is defined for " + id);
 		}
 	};

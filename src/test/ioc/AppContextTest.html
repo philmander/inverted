@@ -75,9 +75,9 @@
                  mockProtoFactory.getProtoConfig = function(id) {
              		return conf.protos[id];
              	 };              
-             	 mockProtoFactory.parseProtoString = function() {
-             		 return true;
-             	 };
+             	 mockProtoFactory.parseProtoString = function(protoString) {
+            		return inverted.util.parseProtoString(protoString, window);
+            	 };
 
                 var mockRequire = {}
                 mockRequire.load = function(scripts, callback, ctx) {
@@ -141,8 +141,8 @@
             	{
             		return conf.protos[id];
             	};
-            	mockProtoFactory.parseProtoString = function() {
-            		return true;
+            	mockProtoFactory.parseProtoString = function(protoString) {
+            		return inverted.util.parseProtoString(protoString, window);
             	};
 
             	var expected = [];

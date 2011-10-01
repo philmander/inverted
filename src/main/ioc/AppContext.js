@@ -94,7 +94,9 @@
 
 				var protos = [];
 				for( var j = 0; j < ids.length; j++) {
-					protos.push(this.protoFactory.getProto(ids[j]));
+					var proto = this.protoFactory.getProto(ids[j]);
+					proto._appContext = this;						
+					protos.push(proto);
 				}
 
 				if(callback) {

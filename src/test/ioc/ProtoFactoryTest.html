@@ -256,7 +256,11 @@
 					singletonScope: {
 						proto: "test.SingletonScope",
 						scope: "singleton"
-					}				
+					},
+					staticScope: {
+						proto: "test.StaticScope",
+						scope: "static"
+					}
 				};
 				
 				test.PrototypeScope = function()
@@ -269,6 +273,10 @@
                 	this.blah = Math.random();
                 };
                 
+                test.StaticScope = {
+                	blah: Math.random()
+                };
+                
                 protoFactory = new inverted.ioc.ProtoFactory(conf);
                 var prototype1 = protoFactory.getProto("prototypeScope");
                 var prototype2 = protoFactory.getProto("prototypeScope");
@@ -276,11 +284,17 @@
                 var singleton1 = protoFactory.getProto("singletonScope");
                 var singleton2 = protoFactory.getProto("singletonScope");
                 
+                var static1 = protoFactory.getProto("staticScope");
+                var static2 = protoFactory.getProto("staticScope");
+                
                 Y.Assert.areNotSame(prototype1, prototype2);
                 Y.Assert.areNotEqual(prototype1.blah, prototype2.blah);
                 
                 Y.Assert.areSame(singleton1, singleton2);
-                Y.Assert.areEqual(singleton1.blah, singleton2.blah);                                                      
+                Y.Assert.areSame(singleton1.blah, singleton2.blah);
+                
+                Y.Assert.areSame(static1, static2);
+                Y.Assert.areSame(static1.blah, static2.blah);
 			}           
         });
 
