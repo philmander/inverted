@@ -11,10 +11,7 @@
 	 */
 	ns.isArray = function(obj) {
 
-		if(Array.isArray) {
-			return obj.isArray();
-		}
-		return Object.prototype.toString.call(obj) === "[object Array]";
+		return Array.isArray || Object.prototype.toString.call(obj) === "[object Array]";
 	};
 
 	/**
@@ -43,8 +40,6 @@
 		for(var i = 0, part; part = parts[i]; i++) {
 			
 			if(typeof obj[part] === "undefined") {
-				return null;
-			} else if(i === parts.length - 1 && typeof obj[part] !== "function") {
 				return null;
 			} else {
 				obj = obj[part];

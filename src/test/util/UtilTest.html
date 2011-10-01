@@ -30,7 +30,7 @@
         		Y.Assert.isTypeOf("function", result1, "Object should exist");        	
         		
         		var result2 = inverted.util.parseProtoString("an.object.NotConstructor", window);        		
-        		Y.Assert.isNull(result2, "Object should be null");        	
+        		Y.Assert.areSame(result2, an.object.NotConstructor, "Object should be a reference to NotConstructor");        	
         		
         		var result3 = inverted.util.parseProtoString("does.not.Exist", window);        		
         		Y.Assert.isNull(result3, "Object should be null");

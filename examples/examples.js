@@ -589,10 +589,7 @@ examples["injectingStaticUtilities"] = function() {
 	};	
 	global.MyUtil.prototype.isArray = function(obj) {
 
-		if(Array.isArray) {
-			return obj.isArray();
-		}
-		return Object.prototype.toString.call(obj) === "[object Array]";
+		return Array.isArray || Object.prototype.toString.call(obj) === "[object Array]";
 	};
 	
 	global.MyProto = function() {
