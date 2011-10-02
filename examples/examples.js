@@ -31,7 +31,7 @@ examples["simpleInstansiate"] = function() {
 	};
 	
 	//use the container
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 	
 	appContext.getProto("myObj", function(myObj) {
 		log(myObj instanceof MyObj === true); //true
@@ -64,7 +64,7 @@ examples["simpleConstructorInjectLiteralArgs"] = function() {
 	};
 
 	//use the container	
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 
 	appContext.getProto("myObj", function(myObj) {
 		log(myObj.num === 99); //true
@@ -103,7 +103,7 @@ examples["simpleConstructorInjectLiteralsObj"] = function() {
 	};
 	
 	//use the container
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 	
 	appContext.getProto("myObj", function(myObj) {
 		log(myObj.num === 99);//true
@@ -153,7 +153,7 @@ examples["simpleConstructorInjectDependency"] = function() {
 	};
 	
 	//use the container
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 	
 	appContext.getProto("myObjOne", function(obj1) {
 	
@@ -193,7 +193,7 @@ examples["simplePropertyInjectLiteralArgs"] = function() {
 	};
 	
 	//use the container
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 
 	appContext.getProto("myObj", function(myObj) {
 		log(myObj.num === 88); //true
@@ -246,7 +246,7 @@ examples["simplePropertyInjectDependency"] = function() {
 		}
 	};
 	
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 	
 	appContext.getProto("myObjOne", function(obj1) {
 	
@@ -281,7 +281,7 @@ examples["multiInstansiate"] = function() {
 		}
 	};
 	
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 	
 	appContext.getProto("myObjOne", "myObjTwo", function(myObj1, myObj2) {
 		log(myObj1 instanceof myapp.MyObjOne === true); //true	
@@ -318,7 +318,7 @@ examples["scopes"] = function() {
 		}
 	};
 	
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 	
 	var singleton1, singleton2, prototype1, prototype2;
 	
@@ -383,7 +383,7 @@ examples["inheritance"] = function() {
 	};
 	
 	//use the inerted container
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 	
 	appContext.getProto("myProto", function(myProto) {
 		
@@ -428,7 +428,7 @@ examples["simpleResolve"] = function() {
 	};
 	
 	//use the inerted container
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 	
 	appContext.getProto("myProto", function(myProto) {
 		
@@ -478,7 +478,7 @@ examples["profilesResolve"] = function() {
 	};
 	
 	//use the inerted container
-	var appContext = AppContext(conf, "prod");
+	var appContext = inverted.AppContext(conf, "prod");
 	
 	appContext.getProto("myProto", function(myProto) {
 		
@@ -528,7 +528,7 @@ examples["factoryMethod"] = function() {
 	};
 	
 	//use the inerted container
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 	
 	appContext.getProto("myProto", function(myProto) {
 				
@@ -618,7 +618,7 @@ examples["injectingStaticUtilities"] = function() {
 	};
 	
 	//use the inerted container
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 	
 	appContext.getProto("myProto", function(myProto) {
 				
