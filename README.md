@@ -26,7 +26,7 @@ var applicationConfig = {
 Inverted exposes one function _inverted.AppContext_. Which can be called using the application configuration as an argument to create an Application Context object.
 
 ```javascript
-var appContext = AppContext(applicationConfig)
+var appContext = inverted.AppContext(applicationConfig)
 ```
 
 Protos defined in the application configuration can then be retrieved using the _getProto_ function passing _n_ proto definition id's and a callback with _n_ arguments, one for each instance of a proto instantiated:
@@ -84,7 +84,7 @@ var conf = {
 };
 
 // use the container
-var appContext = AppContext(conf);
+var appContext = inverted.AppContext(conf);
 
 appContext.getProto("myObj", function(myObj) {
 
@@ -116,7 +116,7 @@ var conf = {
 };
 
 // use the container with a different context
-var appContext = AppContext(conf, null, root); //the null here is a profile which is explained later
+var appContext = inverted.AppContext(conf, null, root); //the null here is a profile which is explained later
 
 appContext.getProto("myObj", function(myObj) {
 
@@ -150,7 +150,7 @@ var conf = {
 };
 
 // use the container
-var appContext = AppContext(conf);
+var appContext = inverted.AppContext(conf);
 
 appContext.getProto("myObj", function(myObj) {
 
@@ -191,7 +191,7 @@ var conf = {
 };
 
 // use the container
-var appContext = AppContext(conf);
+var appContext = inverted.AppContext(conf);
 
 appContext.getProto("myObj", function(myObj) {
 
@@ -246,7 +246,7 @@ var conf = {
 };
 
 // use the container
-var appContext = AppContext(conf);
+var appContext = inverted.AppContext(conf);
 
 appContext.getProto("myObjOne", function(obj1) {
 
@@ -312,7 +312,7 @@ var conf = {
 };
 
 // use the container
-var appContext = AppContext(conf);
+var appContext = inverted.AppContext(conf);
 
 appContext.getProto("myObj", function(myObj) {
 
@@ -371,7 +371,7 @@ var conf = {
 };
 
 //use the container
-var appContext = AppContext(conf);
+var appContext = inverted.AppContext(conf);
 
 appContext.getProto("myObjOne", function(obj1) {
 
@@ -425,7 +425,7 @@ var conf = {
 };
 
 //use the container
-var appContext = AppContext(conf);
+var appContext = inverted.AppContext(conf);
 
 var singleton1, singleton2, prototype1, prototype2, static1;
 
@@ -502,7 +502,7 @@ var conf = {
 };
 
 // use the container
-var appContext = AppContext(conf);
+var appContext = inverted.AppContext(conf);
 
 appContext.getProto("myProto", function(myProto) {
 
@@ -542,7 +542,7 @@ var conf = {
 };
 
 // use the container
-var appContext = AppContext(conf);
+var appContext = inverted.AppContext(conf);
 
 appContext.getProto("myProto", function(myProto) {
 
@@ -588,7 +588,7 @@ var conf = {
 };
 
 // use the container
-var appContext = AppContext(conf, "prod");
+var appContext = inverted.AppContext(conf, "prod");
 
 appContext.getProto("myProto", function(myProto) {
 
@@ -637,7 +637,7 @@ Factory methods can be used to generate injected values
 	};
 
 	// use the inerted container
-	var appContext = AppContext(conf);
+	var appContext = inverted.AppContext(conf);
 
 	appContext.getProto("myProto", function(myProto) {
 
@@ -690,7 +690,7 @@ var conf = {
 };
 
 // use the inerted container
-var appContext = AppContext(conf);
+var appContext = inverted.AppContext(conf);
 
 appContext.getProto("myProto", function(myProto) {
 
