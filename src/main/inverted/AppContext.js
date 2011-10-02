@@ -1,5 +1,5 @@
 (function(global, inverted) {
-
+	
 	var DEBUG = global.DEBUG || false;
 
 	/**
@@ -11,8 +11,9 @@
 	inverted.AppContext = function(config, profile, ctx, protoFactory, loader) {
 
 		if(!(this instanceof inverted.AppContext)) {
-			config.ctx = ctx;
-			protoFactory = new inverted.ProtoFactory(config.protos);
+			
+			ctx = ctx || (config.ctx || null);
+			protoFactory = new inverted.ProtoFactory(config.protos, ctx);
 			
 			//TODO: Node detection should probably be more sophisticated
 			if(typeof window === "undefined") {
@@ -20,7 +21,7 @@
 			} else {
 				loader = new inverted.util.WebRequire(5000);
 			}
-			return new inverted.AppContext(config, profile, null, protoFactory, loader);
+			return new inverted.AppContext(config, profile, ctx, protoFactory, loader);
 		}
 
 		this.config = config;
@@ -28,10 +29,10 @@
 		this.protoFactory = protoFactory;
 		this.loader = loader;
 
-		if(typeof config.srcResolver == "function") {
+		if(typeof config.srcResolver === "function") {
 			this.srcResolver = config.srcResolver;
 		}
-		else if(typeof config.srcResolver == "object") {
+		else if(typeof config.srcResolver === "object") {
 			this.srcResolver = config.srcResolver[this.profile];
 		}
 		else {
@@ -39,7 +40,7 @@
 		}
 
 		config.srcBase = config.srcBase || "";
-		this.srcBase = typeof config.srcBase == "object" ? config.srcBase[this.profile] : config.srcBase;
+		this.srcBase = typeof config.srcBase === "object" ? config.srcBase[this.profile] : config.srcBase;
 	};
 
 	/**
@@ -55,7 +56,7 @@
 
 		// last arg should be the callback
 		var callback;
-		if(ids.length > 1 && typeof ids[ids.length - 1] == "function") {
+		if(ids.length > 1 && typeof ids[ids.length - 1] === "function") {
 			callback = ids.pop();
 		}
 
@@ -73,9 +74,10 @@
 		var sources = [];
 		for( var j = 0; j < deps.length; j++) {
 			
+			
 			if(!this.protoFactory.parseProtoString(deps[j])) {
 				var src = this.srcResolver(deps[j], this.srcBase);
-				if(inverted.util.inArray(src, sources) == -1) {
+				if(inverted.util.inArray(src, sources) === -1) {
 					sources.push(src);
 				}
 			}			
@@ -166,7 +168,7 @@
 					continue;
 				}
 
-				var isObject = typeof argData == "object";
+				var isObject = typeof argData === "object";
 				// if arg has ref
 				if((isObject && argData.ref) || (typeof argData === "string" && argData.match(/^\*[^\*]/) !== null)) {
 					deps = this._getDependencies(argData.ref || argData.substr(1), deps);

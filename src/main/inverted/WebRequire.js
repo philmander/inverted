@@ -54,7 +54,7 @@
 		}
 		
 		//exit early if no scripts to load
-		if(scripts.length == 0) {
+		if(scripts.length === 0) {
 			if(typeof callback === "function") {
 				callback.apply(callbackContext, [ true, [], "" ]);
 			}
@@ -136,7 +136,7 @@
 
 			scriptsLoaded.push(src);
 					
-			if(scriptsLoaded.length == numScripts) {
+			if(scriptsLoaded.length === numScripts) {
 				
 				if(DEBUG) {
 					console.log("Clearing timeout for " + src + "(" + thisRequire.requireTimeout + ")");

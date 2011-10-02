@@ -2,7 +2,7 @@
  * Loading of javascript dependencies
  */
 (function(global, inverted) {
-
+	
 	var ns = (inverted.util = inverted.util || {});
 	
 	var DEBUG = global.DEBUG || false;
@@ -15,7 +15,7 @@
 
 		var i, len;
 		for(i = 0, len = scripts.length; i < len; i++) {
-			global.require(scripts[i]);
+			require(scripts[i]);
 		}
 		
 		callback.apply(callbackContext, [ true, [], "" ]);

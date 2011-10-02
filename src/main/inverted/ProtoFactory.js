@@ -8,9 +8,9 @@
 	 * @constructor
 	 * @param config
 	 */
-	inverted.ProtoFactory = function(config) {
+	inverted.ProtoFactory = function(config, ctx) {
 
-		config.ctx = config.ctx || global;
+		this.ctx = ctx || global;
 		this.config = config;
 	};
 
@@ -31,7 +31,7 @@
 		var instance = null;
 
 		// for static just get a reference
-		if(protoData.scope == "static") {
+		if(protoData.scope === "static") {
 
 			if(DEBUG) {
 				console.debug("Getting reference for ", id, "...");
@@ -42,8 +42,8 @@
 			}
 		// create an instance if not singleton or singleton and no instance
 		// defined yet (lazy loaded singletons)
-		} else if((!protoData.scope || protoData.scope != "singleton") ||
-				(protoData.scope == "singleton" && !protoData.instance)) {
+		} else if((!protoData.scope || protoData.scope !== "singleton") ||
+				(protoData.scope === "singleton" && !protoData.instance)) {
 
 			if(DEBUG) {
 				console.debug("Creating new instance for ", id, "...");
@@ -52,7 +52,7 @@
 			instance = this._createInstance(protoData.proto, protoData.args, protoData.props, protoData.extendsRef);
 
 			// save instance if singleton
-			if(protoData.scope && protoData.scope == "singleton") {
+			if(protoData.scope && protoData.scope === "singleton") {
 				protoData.instance = instance;
 			}
 		}
@@ -137,7 +137,7 @@
 				if(propData.hasOwnProperty(propName)) {
 					var propertyArgs = this._createArgs([ propData[propName] ]);
 
-					if(typeof instance[propName] == "function") {
+					if(typeof instance[propName] === "function") {
 						instance[propName].apply(instance, propertyArgs[0]);
 					} else {
 						instance[propName] = propertyArgs[0];
@@ -187,7 +187,7 @@
 					continue;
 				}
 
-				var isObject = typeof argData == "object";
+				var isObject = typeof argData === "object";
 
 				// if arg has ref
 				if((isObject && argData.ref) || (typeof argData === "string" && argData.match(/^\*[^\*]/) !== null)) {
@@ -246,7 +246,7 @@
 
 	inverted.ProtoFactory.prototype.parseProtoString = function(protoString) {
 
-		return inverted.util.parseProtoString(protoString, this.config.ctx);
+		return inverted.util.parseProtoString(protoString, this.ctx);
 	};
 
 	/**
