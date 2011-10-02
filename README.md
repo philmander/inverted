@@ -23,7 +23,7 @@ var applicationConfig = {
 }
 ```
 
-Inverted defines one global function _AppContext_. Which can be called using the application configuration as an argument to create an Application Context object.
+Inverted exposes one function _inverted.AppContext_. Which can be called using the application configuration as an argument to create an Application Context object.
 
 ```javascript
 var appContext = AppContext(applicationConfig)
@@ -48,10 +48,7 @@ This file explains the core concepts of Inverted by example. Most examples show 
 
 ###Road map
 
-* Inverted is currently only built to run in the browser. Node support also needed.
-* Add 'static' scope, for injecting objects which are not instances
-* 
-
+* Improve Node support. 
 
 ##Examples
 
@@ -389,7 +386,9 @@ appContext.getProto("myObjOne", function(obj1) {
 
 ###Proto scopes
 
-Inverted supports two scopes _prototype_ and _singleton_. The first is used by default and does not need to be explicitly specified in the application config. Protos that use the singleton scope will only be instantiated once.
+Inverted supports three scopes _prototype_, _singleton_ and _static_. The first is used by default and does not need to be explicitly specified in the application config. Protos that use the singleton scope will only be instantiated once.
+
+Static scopes are just used to get a reference to an object. No injection is performed on static scoped protos.
 
 ```javascript
 
@@ -402,6 +401,11 @@ myapp.MyProto = function() {
 
 };
 
+myapp.MyStatic = {};
+myapp.MyStatic.doSomething = function() {
+	
+}
+
 //application config
 var conf = {
 	protos : {
@@ -412,6 +416,10 @@ var conf = {
 		mySingleton : {
 			proto : "myapp.MySingleton",
 			scope : "singleton"
+		},
+		myStatic: {
+			proto : "myapp.MyStatic",
+			scope : "static"
 		}
 	}
 };
@@ -419,7 +427,7 @@ var conf = {
 //use the container
 var appContext = AppContext(conf);
 
-var singleton1, singleton2, prototype1, prototype2;
+var singleton1, singleton2, prototype1, prototype2, static1;
 
 appContext.getProto("myProto", function(myProto) {
 
@@ -437,6 +445,10 @@ appContext.getProto("mySingleton", function(mySingleton) {
 
 	singleton2 = mySingleton;
 });
+appContext.getProto("myStatic", function(myStatic)
+
+	static1 = myStatic;
+});
 
 // objects constructed with protype scope are different
 log(prototype1 !== prototype2); // true
@@ -447,6 +459,9 @@ log(prototype2.something !== true); // true
 log(singleton1 === singleton2); // true
 singleton1.something = true;
 log(singleton2.something === true); // true
+
+//static
+log(typeof static1.doSomething === "function") //true
 
 ```
 
