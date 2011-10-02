@@ -1,10 +1,9 @@
 /**
  * Some utils
  */
-(function(global) {
+(function(global, inverted) {
 
-	global.inverted = global.inverted || {};
-	var ns = (global.inverted.util = global.inverted.util || {});
+	var ns = (inverted.util = inverted.util || {});
 
 	/**
 	 * Strict check to see if an object is an array.
@@ -49,4 +48,4 @@
 		return obj;
 	};
 	
-})(this);
+})(global, inverted);

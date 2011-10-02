@@ -6,9 +6,10 @@
 <script src="http://yui.yahooapis.com/combo?3.3.0/build/yui/yui-min.js"></script>
 
 <script> window.DEBUG = true; </script>
-<script src="../../main/util/Namespace.js"></script>
-<script src="../../main/util/Util.js"></script>
-<script src="../../main/ioc/ProtoFactory.js"></script>
+<script src="../../main/inverted/release/expose.js"></script>
+<script src="../../main/inverted/Namespace.js"></script>
+<script src="../../main/inverted/Util.js"></script>
+<script src="../../main/inverted/ProtoFactory.js"></script>
 
 </head>
 <body>
@@ -123,7 +124,7 @@
                 	this.blah = "C";
                 };
                 
-                protoFactory = new inverted.ioc.ProtoFactory(conf);
+                protoFactory = new inverted.ProtoFactory(conf);
                 var injected = protoFactory.getProto("injected");
                                 
                 //constructor injection assertions
@@ -187,7 +188,7 @@
 					return env.raining ? new test.WetTyre() : new test.DryTyre();
 				};
 				
-				protoFactory = new inverted.ioc.ProtoFactory(conf);
+				protoFactory = new inverted.ProtoFactory(conf);
 				env.raining = true;
                 var rainCar = protoFactory.getProto("car");                
                 Y.Assert.isInstanceOf(test.WetTyre, rainCar.tyres);                
@@ -233,7 +234,7 @@
 					this.name = name;
 				};
 				
-				protoFactory = new inverted.ioc.ProtoFactory(conf);
+				protoFactory = new inverted.ProtoFactory(conf);
                 var boxer = protoFactory.getProto("boxer");
                 
                 Y.Assert.isNotUndefined(boxer.move);
@@ -277,7 +278,7 @@
                 	blah: Math.random()
                 };
                 
-                protoFactory = new inverted.ioc.ProtoFactory(conf);
+                protoFactory = new inverted.ProtoFactory(conf);
                 var prototype1 = protoFactory.getProto("prototypeScope");
                 var prototype2 = protoFactory.getProto("prototypeScope");
                 

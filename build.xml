@@ -5,15 +5,16 @@
 	<property name="build.dir" value="${basedir}/build" />
 
 	<!-- src dirs -->
-	<property name="src.dir" value="${basedir}/src/main" />
+	<property name="src.dir" value="${basedir}/src/main/inverted" />
 	<property name="test.dir" value="${basedir}/src/test" />
 	
 	<!-- other dirs -->
 	<property name="temp.dir" value="${basedir}/build/temp" />
 	<property name="archive.dir" value="${basedir}/archive" />
+	<property name="latest.dir" value="${basedir}/latest" />
 	<property name="version.file" value="${basedir}/version.properties" />
 	
-	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${basedir}/lib/compiler.jar" />
+	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${basedir}/ant/compiler.jar" />
 	
 	<target name="clean">
 		<echo>Doing clean...for ${build.dir}</echo>
@@ -33,14 +34,16 @@
 		
 		<!-- uncompressed -->
 		<concat destfile="${build.dir}/inverted.js" fixlastline="yes">
-			<filelist dir="${build.dir}">		
-				<file name="intro.js" />
-				<file name="util/Namespace.js" />
-				<file name="util/Util.js" />
-				<file name="util/Require.js" />
+			<filelist dir="${build.dir}">
+				<file name="release/intro.txt" />
+				<file name="release/expose.js" />
+				<file name="Util.js" />
+				<file name="WebRequire.js" />
+				<file name="CommonRequire.js" />
 				<file name="resolvers/resolvers.js" />	
-				<file name="ioc/ProtoFactory.js" />
-				<file name="ioc/AppContext.js" />			
+				<file name="ProtoFactory.js" />
+				<file name="AppContext.js" />
+				<file name="release/outro.txt" />
 			</filelist>
 		</concat>
 		
@@ -70,22 +73,23 @@
 		<mkdir dir="${versioned.dir}" />
 		
 		<copy todir="${versioned.dir}">
-		   <fileset dir="${build.dir}" includes="inverted**.js"/>
+		   <fileset dir="${build.dir}" includes="inverted**.js, package.json"/>
 		</copy>
 		
+		<replace file="${versioned.dir}/package.json" token="@version@" value="${version-string}" />
 		<replace file="${versioned.dir}/inverted.js" token="@version@" value="${version-string}" />
 		<replace file="${versioned.dir}/inverted-min.js" token="@version@" value="${version-string}" />
 		
-		<move file="${versioned.dir}/inverted.js" tofile="${versioned.dir}/inverted-${version-string}.js"/>		 	
-	    <move file="${versioned.dir}/inverted-min.js" tofile="${versioned.dir}/inverted-min-${version-string}.js"/>
-		
 		<zip destfile="${versioned.dir}/inverted-${version-string}.zip">
-			<zipfileset dir="${versioned.dir}" prefix="inverted-js"/>
-				
+			<zipfileset dir="${versioned.dir}" prefix="inverted-js"/>				
 		</zip>
 		
 		<delete dir="${versioned.dir}/src"/>
-		<delete dir="${versioned.dir}/test"/>					
+		<delete dir="${versioned.dir}/test"/>				
+		
+		<copy file="${versioned.dir}/inverted.js" tofile="${latest.dir}/inverted.js"/>		 	
+		<copy file="${versioned.dir}/inverted-min.js" tofile="${latest.dir}/inverted-min.js" />
+		<copy file="${versioned.dir}/package.json" tofile="${latest.dir}/package.json" />
 		
 		<echo>Archiving... DONE</echo>
 	</target>
@@ -114,7 +118,7 @@
 		</propertyfile>		
 		
 		<antcall target="archive" />
-		
+
 		<echo>Building minor... DONE</echo>
 	</target>
 	
@@ -128,6 +132,8 @@
 		</propertyfile>		
 		
 		<antcall target="archive" />
+		
+		
 		<echo>Building major... DONE</echo>
 	</target>
 </project>

@@ -1,8 +1,5 @@
-(function(global) {
-
-	var inverted = global.inverted;
-	var ns = inverted.ns("inverted.ioc");
-
+(function(global, inverted) {
+	
 	var DEBUG = global.DEBUG || false;
 
 	/**
@@ -11,7 +8,7 @@
 	 * @constructor
 	 * @param config
 	 */
-	ns.ProtoFactory = function(config) {
+	inverted.ProtoFactory = function(config) {
 
 		config.ctx = config.ctx || global;
 		this.config = config;
@@ -23,7 +20,7 @@
 	 * @param id
 	 * @returns
 	 */
-	ns.ProtoFactory.prototype.getProto = function(id) {
+	inverted.ProtoFactory.prototype.getProto = function(id) {
 
 		if(DEBUG) {
 			console.debug("Getting proto for ", id, "...");
@@ -78,7 +75,7 @@
 	 * @param factoryMethod
 	 * @returns
 	 */
-	ns.ProtoFactory.prototype._createInstance = function(proto, argData, propData, extendsRef) {
+	inverted.ProtoFactory.prototype._createInstance = function(proto, argData, propData, extendsRef) {
 
 		var instance = null;
 
@@ -159,7 +156,7 @@
 	 * @param factoryMethod
 	 * @returns
 	 */
-	ns.ProtoFactory.prototype._getProtoFromFactory = function(factoryRef, factoryMethod) {
+	inverted.ProtoFactory.prototype._getProtoFromFactory = function(factoryRef, factoryMethod) {
 
 		var factory = this.getProto(factoryRef);
 
@@ -176,7 +173,7 @@
 	 * @param confArgs
 	 * @returns {Array}
 	 */
-	ns.ProtoFactory.prototype._createArgs = function(confArgs) {
+	inverted.ProtoFactory.prototype._createArgs = function(confArgs) {
 
 		// figure out constructors
 		var args = [];
@@ -226,7 +223,7 @@
 		return args;
 	};
 
-	ns.ProtoFactory.prototype._extendProto = function(proto, superProto) {
+	inverted.ProtoFactory.prototype._extendProto = function(proto, superProto) {
 
 		// backup methods/props
 		var methods = {};
@@ -247,7 +244,7 @@
 		proto.prototype.constructor = proto;
 	};
 
-	ns.ProtoFactory.prototype.parseProtoString = function(protoString) {
+	inverted.ProtoFactory.prototype.parseProtoString = function(protoString) {
 
 		return inverted.util.parseProtoString(protoString, this.config.ctx);
 	};
@@ -258,7 +255,7 @@
 	 * @param id
 	 * @returns
 	 */
-	ns.ProtoFactory.prototype.getProtoConfig = function(id) {
+	inverted.ProtoFactory.prototype.getProtoConfig = function(id) {
 
 		var config = this.config;
 
@@ -269,4 +266,4 @@
 		}
 	};
 
-})(this);
+})(global, inverted);

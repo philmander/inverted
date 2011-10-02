@@ -6,9 +6,10 @@
 <script src="http://yui.yahooapis.com/combo?3.3.0/build/yui/yui-min.js"></script>
 
 <script> window.DEBUG = true; </script>
-<script src="../../main/util/Namespace.js"></script>
-<script src="../../main/util/Util.js"></script>
-<script src="../../main/util/Require.js"></script>
+<script src="../../main/inverted/release/expose.js"></script>
+<script src="../../main/inverted/Namespace.js"></script>
+<script src="../../main/inverted/Util.js"></script>
+<script src="../../main/inverted/WebRequire.js"></script>
 
 </head>
 <body>
@@ -18,7 +19,7 @@
        	window.test;
         var protoFactory;
         var testCase = new Y.Test.Case({
-            name : "Require Test",
+            name : "Web Require Test",
 
             setUp : function(){				         
                 
@@ -42,7 +43,7 @@
             	Y.Assert.isUndefined(test.RequireTest2);
             	Y.Assert.isUndefined(test.RequireTest3);
             	
-            	var require = new inverted.util.Require(1000);
+            	var require = new inverted.util.WebRequire(1000);
             	require.load(scripts, function(success) {
             		
 					Y.Assert.isTrue(success);		            		
@@ -64,7 +65,7 @@
             	    "../resources/RequireTest404.js",
             	];
             	
-            	var require = new inverted.util.Require(1000);
+            	var require = new inverted.util.WebRequire(1000);
             	
             	var _success, _notLoaded, _message;            	
            		require.load(scripts, function(success, notLoaded, message) {
@@ -86,9 +87,9 @@
 				
 				//TODO: fails if same instane of Require is used for each load
             	
-            	var require1 = new inverted.util.Require(3000);
-            	var require2 = new inverted.util.Require(3000);
-            	var require3 = new inverted.util.Require(3000);
+            	var require1 = new inverted.util.WebRequire(3000);
+            	var require2 = new inverted.util.WebRequire(3000);
+            	var require3 = new inverted.util.WebRequire(3000);
             	
             	var _success1, _notLoaded1, _message1, 
             		_success2, _notLoaded2, _message2, 

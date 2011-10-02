@@ -1,12 +1,9 @@
 /**
  * Namespace utility Shortcut to quadro.Namespace.set() is quadro.namespace()
  */
-(function(global) {
+(function(global, inverted) {
 
-	global.inverted = global.inverted || {};
-	global.inverted.ioc = global.inverted.ioc || {};
-
-	var Namespace = (global.inverted.Namespace = {});
+	var Namespace = (inverted.Namespace = {});
 
 	var _root = global;
 
@@ -70,5 +67,5 @@
 	};
 
 	// shortcut
-	global.inverted.ns = Namespace.set;
-})(this);
+	inverted.ns = Namespace.set;
+})(global, inverted);

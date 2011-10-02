@@ -1,11 +1,9 @@
 /**
- * Dynamic loading of javascript dependencies Shortcut to quadro.Require.get()
- * is quadro.require()
+ * Dynamic loading of javascript dependencies
  */
-(function(global) {
+(function(global, inverted) {
 
-	var inverted = global.inverted;
-	var ns = inverted.ns("inverted.util");
+	var ns = (inverted.util = inverted.util || {});
 	
 	var DEBUG = global.DEBUG || false;
 
@@ -13,7 +11,7 @@
 	
 	var loadCount = 0;
 
-	ns.Require = function(timeout) {
+	ns.WebRequire = function(timeout) {
 
 		this.timeout = timeout || 10000;
 		this.cache = {};		
@@ -22,7 +20,7 @@
 	/**
 	 * Clears cached javascript files
 	 */
-	ns.Require.prototype.clearCache = function() {
+	ns.WebRequire.prototype.clearCache = function() {
 
 		this.cache = {};
 	};
@@ -44,7 +42,7 @@
 	 *            {String} The charset to use when loading scripts. Defaults to
 	 *            UTF-8 (optional)
 	 */
-	ns.Require.prototype.load = function(scripts, callback, callbackContext, charset) {
+	ns.WebRequire.prototype.load = function(scripts, callback, callbackContext, charset) {
 
 		var thisRequire = this;
 
@@ -151,4 +149,4 @@
 			}
 		}
 	};
-})(this);
+})(global, inverted);

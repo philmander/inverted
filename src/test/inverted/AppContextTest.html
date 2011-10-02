@@ -6,10 +6,11 @@
 <script src="http://yui.yahooapis.com/combo?3.3.0/build/yui/yui-min.js"></script>
 
 <script> window.DEBUG = true; </script>
-<script src="../../main/util/Namespace.js"></script>
-<script src="../../main/util/Util.js"></script>
-<script src="../../main/resolvers/resolvers.js"></script>
-<script src="../../main/ioc/AppContext.js"></script>
+<script src="../../main/inverted/release/expose.js"></script>
+<script src="../../main/inverted/Namespace.js"></script>
+<script src="../../main/inverted/Util.js"></script>
+<script src="../../main/inverted/resolvers/resolvers.js"></script>
+<script src="../../main/inverted/AppContext.js"></script>
 
 </head>
 <body>
@@ -92,7 +93,7 @@
                 	callback.apply(ctx, [true, [], ""]);                	
                 };
          
-                var appContext = new AppContext(conf, "myEnv", null, mockProtoFactory, mockRequire);
+                var appContext = new inverted.AppContext(conf, "myEnv", null, mockProtoFactory, mockRequire);
                 
                 Y.Assert.areEqual("myEnv", appContext.profile);
                 appContext.getProto("proto1", "proto7", function(proto1, proto7) {
@@ -156,11 +157,11 @@
                		callback.apply(ctx, [true, [], ""]);                	
                 };
         
-                var prodAppContext = new AppContext(conf, "prod", null, mockProtoFactory, mockRequire);                               
+                var prodAppContext = new inverted.AppContext(conf, "prod", null, mockProtoFactory, mockRequire);                               
                 expected = [ "/js/prod.js"];
                 prodAppContext.getProto("proto1");
                 
-                var devAppContext = new AppContext(conf, "dev", null, mockProtoFactory, mockRequire);                               
+                var devAppContext = new inverted.AppContext(conf, "dev", null, mockProtoFactory, mockRequire);                               
                 expected = [ "/js/src/dev.js"];
                 devAppContext.getProto("proto1");
            }                        

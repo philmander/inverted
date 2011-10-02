@@ -6,4 +6,5 @@
  * Copyright (c) 2010, Phil Mander
  * Licensed under the MIT license
  */
-window.inverted = {};
+(function(global) {
+

@@ -1,8 +1,4 @@
-(function(global) {
-
-	var inverted = global.inverted;
-	var ns = inverted.ns("inverted.ioc");
-	
+(function(global, inverted) {
 
 	var DEBUG = global.DEBUG || false;
 
@@ -12,19 +8,25 @@
 	 * @constructor
 	 * @param config
 	 */
-	ns.AppContext = function(config, profile, ctx, protoFactory, require) {
+	inverted.AppContext = function(config, profile, ctx, protoFactory, loader) {
 
-		if(!(this instanceof ns.AppContext)) {
+		if(!(this instanceof inverted.AppContext)) {
 			config.ctx = ctx;
-			protoFactory = new inverted.ioc.ProtoFactory(config.protos);
-			require = new inverted.util.Require(5000);
-			return new ns.AppContext(config, profile, null, protoFactory, require);
+			protoFactory = new inverted.ProtoFactory(config.protos);
+			
+			//TODO: Node detection should probably be more sophisticated
+			if(typeof window === "undefined") {
+				loader = new inverted.util.CommonRequire();
+			} else {
+				loader = new inverted.util.WebRequire(5000);
+			}
+			return new inverted.AppContext(config, profile, null, protoFactory, loader);
 		}
 
 		this.config = config;
 		this.profile = profile || "local";
 		this.protoFactory = protoFactory;
-		this.require = require;
+		this.loader = loader;
 
 		if(typeof config.srcResolver == "function") {
 			this.srcResolver = config.srcResolver;
@@ -40,16 +42,13 @@
 		this.srcBase = typeof config.srcBase == "object" ? config.srcBase[this.profile] : config.srcBase;
 	};
 
-	// expose
-	global.AppContext = ns.AppContext;
-
 	/**
 	 * Gets an instance of a prototype using the specified id
 	 * 
 	 * @param ids
 	 * @param callback
 	 */
-	ns.AppContext.prototype.getProto = function() {
+	inverted.AppContext.prototype.getProto = function() {
 
 		// turn arguments list in to array of proto ids
 		var ids = Array.prototype.slice.call(arguments, 0);
@@ -84,7 +83,7 @@
 
 		// load all dependencies before attempting to create an instance
 		//TODO: single instance of require needs to do multiple loads
-		this.require.load(sources, function(success, notLoaded, failMessage) {
+		this.loader.load(sources, function(success, notLoaded, failMessage) {
 
 			if(success) {
 
@@ -122,7 +121,7 @@
 	 * @param deps
 	 * @returns
 	 */
-	ns.AppContext.prototype._getDependencies = function(id, deps) {
+	inverted.AppContext.prototype._getDependencies = function(id, deps) {
 
 		deps = deps || [];
 		var protoData = this.protoFactory.getProtoConfig(id);
@@ -156,7 +155,7 @@
 	 * @param deps
 	 * @returns
 	 */
-	ns.AppContext.prototype._getDependenciesFromArgs = function(confArgs, deps) {
+	inverted.AppContext.prototype._getDependenciesFromArgs = function(confArgs, deps) {
 
 		if(confArgs) {
 			for( var i = 0; i < confArgs.length; i++) {
@@ -200,4 +199,4 @@
 		return deps;
 	};
 
-})(this);
+})(global, inverted);
