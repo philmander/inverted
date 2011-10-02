@@ -36,13 +36,14 @@
 		<concat destfile="${build.dir}/inverted.js" fixlastline="yes">
 			<filelist dir="${build.dir}">
 				<file name="release/intro.txt" />
-				<file name="release/expose.js" />
+				<file name="release/init.js" />				
 				<file name="Util.js" />
 				<file name="WebRequire.js" />
 				<file name="CommonRequire.js" />
 				<file name="resolvers/resolvers.js" />	
 				<file name="ProtoFactory.js" />
 				<file name="AppContext.js" />
+				<file name="release/expose.js" />
 				<file name="release/outro.txt" />
 			</filelist>
 		</concat>
@@ -57,6 +58,9 @@
 			<sources dir="${build.dir}">
 				<file name="inverted-min.js" />								
 			</sources>
+			<externs dir="${basedir}/ant">
+			     <file name="node.js"/>
+			</externs>
 		</jscomp>
 		
 		<echo>Minifying Javascript... DONE</echo>
