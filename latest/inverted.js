@@ -1,5 +1,5 @@
 /**
- * @license Inverted IOC container v0.0.13
+ * @license Inverted IOC container v0.1.02
  * 
  * https://github.com/philmander/inverted-js
  * 
@@ -8,14 +8,10 @@
  */
 (function(global) {
 
-
-//sub modules
-var inverted = {};
+//include within build after intro or standalone before other js files in dev
 var global = global || this;
+var inverted = {};
 
-//expose as export for common js or global for browser
-var exports = exports || global;
-exports.inverted = inverted;
 /**
  * Some utils
  */
@@ -123,7 +119,7 @@ exports.inverted = inverted;
 		}
 		
 		//exit early if no scripts to load
-		if(scripts.length == 0) {
+		if(scripts.length === 0) {
 			if(typeof callback === "function") {
 				callback.apply(callbackContext, [ true, [], "" ]);
 			}
@@ -205,7 +201,7 @@ exports.inverted = inverted;
 
 			scriptsLoaded.push(src);
 					
-			if(scriptsLoaded.length == numScripts) {
+			if(scriptsLoaded.length === numScripts) {
 				
 				if(DEBUG) {
 					console.log("Clearing timeout for " + src + "(" + thisRequire.requireTimeout + ")");
@@ -223,7 +219,7 @@ exports.inverted = inverted;
  * Loading of javascript dependencies
  */
 (function(global, inverted) {
-
+	
 	var ns = (inverted.util = inverted.util || {});
 	
 	var DEBUG = global.DEBUG || false;
@@ -236,7 +232,7 @@ exports.inverted = inverted;
 
 		var i, len;
 		for(i = 0, len = scripts.length; i < len; i++) {
-			global.require(scripts[i]);
+			require(scripts[i]);
 		}
 		
 		callback.apply(callbackContext, [ true, [], "" ]);
@@ -266,9 +262,9 @@ exports.inverted = inverted;
 	 * @constructor
 	 * @param config
 	 */
-	inverted.ProtoFactory = function(config) {
+	inverted.ProtoFactory = function(config, ctx) {
 
-		config.ctx = config.ctx || global;
+		this.ctx = ctx || global;
 		this.config = config;
 	};
 
@@ -289,7 +285,7 @@ exports.inverted = inverted;
 		var instance = null;
 
 		// for static just get a reference
-		if(protoData.scope == "static") {
+		if(protoData.scope === "static") {
 
 			if(DEBUG) {
 				console.debug("Getting reference for ", id, "...");
@@ -300,8 +296,8 @@ exports.inverted = inverted;
 			}
 		// create an instance if not singleton or singleton and no instance
 		// defined yet (lazy loaded singletons)
-		} else if((!protoData.scope || protoData.scope != "singleton") ||
-				(protoData.scope == "singleton" && !protoData.instance)) {
+		} else if((!protoData.scope || protoData.scope !== "singleton") ||
+				(protoData.scope === "singleton" && !protoData.instance)) {
 
 			if(DEBUG) {
 				console.debug("Creating new instance for ", id, "...");
@@ -310,7 +306,7 @@ exports.inverted = inverted;
 			instance = this._createInstance(protoData.proto, protoData.args, protoData.props, protoData.extendsRef);
 
 			// save instance if singleton
-			if(protoData.scope && protoData.scope == "singleton") {
+			if(protoData.scope && protoData.scope === "singleton") {
 				protoData.instance = instance;
 			}
 		}
@@ -395,7 +391,7 @@ exports.inverted = inverted;
 				if(propData.hasOwnProperty(propName)) {
 					var propertyArgs = this._createArgs([ propData[propName] ]);
 
-					if(typeof instance[propName] == "function") {
+					if(typeof instance[propName] === "function") {
 						instance[propName].apply(instance, propertyArgs[0]);
 					} else {
 						instance[propName] = propertyArgs[0];
@@ -445,7 +441,7 @@ exports.inverted = inverted;
 					continue;
 				}
 
-				var isObject = typeof argData == "object";
+				var isObject = typeof argData === "object";
 
 				// if arg has ref
 				if((isObject && argData.ref) || (typeof argData === "string" && argData.match(/^\*[^\*]/) !== null)) {
@@ -504,7 +500,7 @@ exports.inverted = inverted;
 
 	inverted.ProtoFactory.prototype.parseProtoString = function(protoString) {
 
-		return inverted.util.parseProtoString(protoString, this.config.ctx);
+		return inverted.util.parseProtoString(protoString, this.ctx);
 	};
 
 	/**
@@ -526,7 +522,7 @@ exports.inverted = inverted;
 
 })(global, inverted);
 (function(global, inverted) {
-
+	
 	var DEBUG = global.DEBUG || false;
 
 	/**
@@ -538,8 +534,9 @@ exports.inverted = inverted;
 	inverted.AppContext = function(config, profile, ctx, protoFactory, loader) {
 
 		if(!(this instanceof inverted.AppContext)) {
-			config.ctx = ctx;
-			protoFactory = new inverted.ProtoFactory(config.protos);
+			
+			ctx = ctx || (config.ctx || null);
+			protoFactory = new inverted.ProtoFactory(config.protos, ctx);
 			
 			//TODO: Node detection should probably be more sophisticated
 			if(typeof window === "undefined") {
@@ -547,7 +544,7 @@ exports.inverted = inverted;
 			} else {
 				loader = new inverted.util.WebRequire(5000);
 			}
-			return new inverted.AppContext(config, profile, null, protoFactory, loader);
+			return new inverted.AppContext(config, profile, ctx, protoFactory, loader);
 		}
 
 		this.config = config;
@@ -555,10 +552,10 @@ exports.inverted = inverted;
 		this.protoFactory = protoFactory;
 		this.loader = loader;
 
-		if(typeof config.srcResolver == "function") {
+		if(typeof config.srcResolver === "function") {
 			this.srcResolver = config.srcResolver;
 		}
-		else if(typeof config.srcResolver == "object") {
+		else if(typeof config.srcResolver === "object") {
 			this.srcResolver = config.srcResolver[this.profile];
 		}
 		else {
@@ -566,7 +563,7 @@ exports.inverted = inverted;
 		}
 
 		config.srcBase = config.srcBase || "";
-		this.srcBase = typeof config.srcBase == "object" ? config.srcBase[this.profile] : config.srcBase;
+		this.srcBase = typeof config.srcBase === "object" ? config.srcBase[this.profile] : config.srcBase;
 	};
 
 	/**
@@ -582,7 +579,7 @@ exports.inverted = inverted;
 
 		// last arg should be the callback
 		var callback;
-		if(ids.length > 1 && typeof ids[ids.length - 1] == "function") {
+		if(ids.length > 1 && typeof ids[ids.length - 1] === "function") {
 			callback = ids.pop();
 		}
 
@@ -600,9 +597,10 @@ exports.inverted = inverted;
 		var sources = [];
 		for( var j = 0; j < deps.length; j++) {
 			
+			
 			if(!this.protoFactory.parseProtoString(deps[j])) {
 				var src = this.srcResolver(deps[j], this.srcBase);
-				if(inverted.util.inArray(src, sources) == -1) {
+				if(inverted.util.inArray(src, sources) === -1) {
 					sources.push(src);
 				}
 			}			
@@ -693,7 +691,7 @@ exports.inverted = inverted;
 					continue;
 				}
 
-				var isObject = typeof argData == "object";
+				var isObject = typeof argData === "object";
 				// if arg has ref
 				if((isObject && argData.ref) || (typeof argData === "string" && argData.match(/^\*[^\*]/) !== null)) {
 					deps = this._getDependencies(argData.ref || argData.substr(1), deps);
@@ -727,4 +725,10 @@ exports.inverted = inverted;
 	};
 
 })(global, inverted);
+//expose as export for common js or global for browser
+if(typeof window === "undefined") {
+	exports.AppContext = inverted.AppContext;
+} else {
+	global.inverted = inverted;
+}
 })(this);
