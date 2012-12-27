@@ -1,9 +1,0 @@
-{
-   "name" : "inverted",
-   "version" : "0.0.13",
-   "main" : "./inverted",
-   "description": "Javascript inversion of control container"
-   "homepage": "https://github.com/philmander/inverted-js",
-   "keywords": ["ioc", "dependency", "injection", "inverted", "inversion"].
-   "author": "Phil Mander <philip.mander@gmail.com>"
-}
