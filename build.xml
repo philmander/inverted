@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Inverted" default="build" basedir="." >
+
+	<!-- build dirs -->
+	<property name="build.dir" value="${basedir}/build" />
+
+	<!-- src dirs -->
+	<property name="src.dir" value="${basedir}/src" />
+	<property name="test.dir" value="${basedir}/test" />
+	
+	<!-- other dirs -->
+	<property name="temp.dir" value="${basedir}/build/temp" />
+	<property name="version" value="99" />
+	<property name="lib.dir" value="${basedir}/lib" />
+	
+	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${basedir}/lib/ant/compiler.jar" />
+    <taskdef name="jshint" classname="com.philmander.jshint.JsHintAntTask" classpath="${basedir}/lib/ant/ant-jshint-0.3.3-deps.jar" />
+    <taskdef name="jstest" classname="com.philmander.jstest.ant.JsTestRunnerTask" classpath="${basedir}/lib/ant/ant-jstestrunner-0.1-deps.jar" />
+
+	<target name="clean">
+		<echo>Doing clean...for ${build.dir}</echo>
+		<mkdir dir="${build.dir}/"/>
+		<echo>Doing clean... DONE</echo>
+	</target>
+
+    <target name="lint" depends="clean">
+        <jshint dir="${src.dir}" globals="inverted:true" options="forin=false,newcap=false">
+            <include name="ProtoFactory.js"/>
+            <include name="AppContext.js"/>
+        </jshint>
+    </target>
+
+    <target name="test" depends="lint">
+
+        <jstest dir="${basedir}/test" includes="**/*.html" phantomWin="${basedir}/lib/ant/phantomjs.exe" />
+
+    </target>
+
+	<target name="minify" depends="test">
+		<echo>Minifying Javascript... </echo>
+		
+		<copy todir="${temp.dir}/">
+			<fileset dir="${src.dir}" />
+		</copy>
+		
+		<!-- uncompressed -->
+		<concat destfile="${build.dir}/inverted.js" fixlastline="yes">
+			<filelist dir="${temp.dir}">
+				<file name="intro.js" />
+				<file name="ProtoFactory.js" />
+				<file name="AppContext.js" />
+                <file name="define.js" />
+			</filelist>
+		</concat>
+		
+		<!-- compressed -->
+		<jscomp compilationLevel="simple" warning="verbose" debug="true" output="${build.dir}/inverted-min.js">
+			<sources dir="${build.dir}">
+				<file name="inverted.js" />
+			</sources>
+		</jscomp>
+
+		<echo>Minifying Javascript... DONE</echo>
+	</target>
+
+	<target name="build" description="Perform a daily full build">
+		<echo>Build...</echo>
+
+		<antcall target="minify" />
+
+        <replace file="${build.dir}/inverted.js" token="@version@" value="${version}" />
+        <replace file="${build.dir}/inverted-min.js" token="@version@" value="${version}" />
+
+        <delete dir="${temp.dir}"/>
+
+        <echo>Build... DONE</echo>
+	</target>
+	
+
+</project>
