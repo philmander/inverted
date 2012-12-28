@@ -7,68 +7,66 @@
 <script src="../lib/qunit.js"></script>
 <script src="../lib/q2junit.js"></script>
 
-<!--<script src="../lib/require.js"></script>-->
-<script src="../lib/curl.js"></script>
-
-<script src="../src/intro.js"></script>
-<script src="../src/AppContext.js"></script>
-<script src="../src/ProtoFactory.js"></script>
-
-<!--<script src="../build/inverted-min.js"></script>-->
-
-<script src="integration-conf.js"></script>
+<script src="../lib/require.js"></script>
+<!--<script src="../lib/curl.js"></script>-->
 
 </head>
 <body>
 <script>
 
+    var amdConfig = {
+        baseUrl: "resources/amd",
+        paths: {
+            "inverted/AppContext" : "../../../src/inverted/AppContext",
+            "inverted/ProtoFactory": "../../../src/inverted/ProtoFactory"
+            //"inverted" : "../../build/inverted-min"
+        }
+    };
+
     //figure out the amd loader
     if(window.requirejs) {
-        requirejs.config({
-            baseUrl: "resources"
-        });
+        requirejs.config(amdConfig);
     } else if(window.curl) {
-        curl.config({
-            baseUrl: "resources"
-        });
+        curl.config(amdConfig);
         window.require = window.curl;
-        inverted.loader = curl;
     }
 
-	var appContext = inverted.AppContext(integrationConf);
+    require(["inverted/AppContext", "integration-conf"], function(AppContext, conf) {
+    //require(["inverted", "integration-conf"], function(AppContext, conf)
+
+	var appContext = AppContext.create(conf);
     
     module("Integration Tests");
-    
-    test("simpleInstance", function() {
-    	    	
-    	stop();
+
+     asyncTest("simpleInstance", 1, function() {
+
     	appContext.getProto("a", function(a) {
-    		
     		require(["A"], function(A) {
-    			start();
-    			assertInstanceOf(A, a);    			
+
+    			assertInstanceOf(A, a);
+                start();
     		});
     	})
-    });           
-	
-	test("simpleConstructorInjectLiterals", function() {
-		stop()
+    });
+
+    asyncTest("simpleConstructorInjectLiterals", 4, function() {
+
 		appContext.getProto("c", function(c) {
-			start();
+
 			assertSame(c.str, "String");
 			assertSame(c.number, 99);
 			assertSame(c.bool, true);
 			assertNull(c.nully);
+
+            start();
 		});
 	});
-	
-	test("simpleConstructorInjectDependency", function() {        
-		 
-		stop();
+
+    asyncTest("simpleConstructorInjectDependency", 10, function() {
+
 		appContext.getProto("a", "a2", function(a, a2) {
          	         	
          	require(["A", "B", "C"], function(A, B, C) {
-    			start();
     			
     			assertInstanceOf(A, a);    			
     			assertInstanceOf(A, a2);
@@ -83,17 +81,17 @@
     			assertSame(a.b.c.number, 99);
     			assertSame(a.b.c.bool, true);
     			assertNull(a.b.c.nully);
+
+                start();
     		});
 		});    	
     });
 
-    test("simpleConstructorInjectObjectArgs", function() {
+    asyncTest("simpleConstructorInjectObjectArgs", 5, function() {
 
-        stop();
         appContext.getProto("e", "c", function(e, c) {
 
             require(["E", "C"], function(E, C) {
-                start();
 
                 assertSame(e.str, "str");
                 assertSame(e.number, 77);
@@ -101,29 +99,30 @@
                 assertNull(e.nully);
 
                 assertInstanceOf(C, e.obj);
+
+                start();
             });
         });
     });
-	
-	test("simplePropertyInjectLiterals", function() {
-		
-		stop()
+
+    asyncTest("simplePropertyInjectLiterals", 4, function() {
+
 		appContext.getProto("d", function(d) {
-			start();
+
 			assertSame(d.str, "hi");
 			assertSame(d.number, 88);
 			assertSame(d.bool, false);
 			assertNull(d.nully);
+
+            start();
 		});
 	});
-	
-	test("simplePropertyInjectDependency", function() {
-		
-		stop();
+
+    asyncTest("simplePropertyInjectDependency", 7, function() {
+
 		appContext.getProto("d", function(d) {
          	         	
          	require(["A", "B", "C", "D" ], function(A, B, C, D) {
-    			start();
     			
     			assertInstanceOf(D, d);    			    			
     			
@@ -135,60 +134,58 @@
     			assertSame(d.b.c.number, 99);
     			assertSame(d.b.c.bool, true);
     			assertNull(d.b.c.nully);
+
+                start();
     		});
 		});    	
 	});
-		
-	test("multiInstantiate", function() {
-		
-		stop();
+
+    asyncTest("multiInstantiate", 3, function() {
+
 		appContext.getProto("a", "b", "c", function(a, b, c) {
          	         	
          	require(["A", "B", "C"], function(A, B, C) {
-    			start();
     			
     			assertInstanceOf(A, a);
     			assertInstanceOf(B, b);
     			assertInstanceOf(C, c);
+
+                start();
     		});
 		});    	
 	});
-	
-	test("scopes", function() {
-		
-		stop();
+
+    asyncTest("scopes", 7, function() {
+
 		appContext.getProto("d", "d2", "d3", function(d, d2, d3) {
 			
 			appContext.getProto("d", "d2", "d3", function(anotherD, anotherD2, anotherD3) {
-				
-				start();
+
 				assertNotSame(d, anotherD);
 				assertNotSame(d.b, anotherD.b);
 				
 				assertSame(d2, anotherD2);
 				assertSame(d2.b, anotherD2.b);	
-				
-				stop();
+
 				require(["D"], function(D) {
-					start();
-					
+
 					assertInstanceOf(D, d);
 					assertInstanceOf(D, d2);
 					assertSame(D, d3);
+                    start();
 				})
 				
 			});			
 		});
 		
 	});
-	
-	test("inheritance", function() {
-		stop();
+
+    asyncTest("inheritance", 5, function() {
+
 		appContext.getProto("d4", function(d4) {
 	
 			require(["A", "D"], function(A, D) {
-				
-				start();
+
 				assertInstanceOf(D, d4);
 				assertInstanceOf(A, d4);							
 				
@@ -196,29 +193,33 @@
 				
 				assertEquals("Hello Geoff Capes", d4.hello());
 				assertEquals("Bye!", d4.bye());
+
+                start();
 			});		
 		});
 				
 	});
-	
-	test("factoryMethod", function() {
-		
-		stop();
+
+    asyncTest("factoryMethod", 1, function() {
+
 		appContext.getProto("c2", function(c2) {
 			
-			start();
 			assertEquals(c2.number, 12345);
+            start();
 		});
 	});
-	
-	test("utilsInject", function() {
 
-        stop();
+    asyncTest("utilsInject", 1, function() {
+
         appContext.getProto("b3", function(b3) {
-            start();
+
             assertTrue(b3.useUtil());
+
+            start();
         })
 	});
+
+    });
  
 </script>
 <h1 id="qunit-header">AppContext test</h1>

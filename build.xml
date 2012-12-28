@@ -24,7 +24,7 @@
 	</target>
 
     <target name="lint" depends="clean">
-        <jshint dir="${src.dir}" globals="inverted:true" options="forin=false,newcap=false">
+        <jshint dir="${src.dir}/inverted" globals="define:true,require:true,curl:true, module:true" options="forin=false,newcap=false">
             <include name="ProtoFactory.js"/>
             <include name="AppContext.js"/>
         </jshint>
@@ -42,22 +42,27 @@
 		<copy todir="${temp.dir}/">
 			<fileset dir="${src.dir}" />
 		</copy>
+
+        <replace file="${temp.dir}/package/intro.js" token="@version@" value="${version}" />
 		
 		<!-- uncompressed -->
 		<concat destfile="${build.dir}/inverted.js" fixlastline="yes">
 			<filelist dir="${temp.dir}">
-				<file name="intro.js" />
-				<file name="ProtoFactory.js" />
-				<file name="AppContext.js" />
-                <file name="define.js" />
+				<file name="package/intro.js" />
+				<file name="inverted/ProtoFactory.js" />
+				<file name="inverted/AppContext.js" />
+                <file name="package/define.js" />
 			</filelist>
 		</concat>
 		
 		<!-- compressed -->
-		<jscomp compilationLevel="simple" warning="verbose" debug="true" output="${build.dir}/inverted-min.js">
+		<jscomp compilationLevel="simple" warning="verbose" debug="false" output="${build.dir}/inverted-min.js">
 			<sources dir="${build.dir}">
 				<file name="inverted.js" />
 			</sources>
+            <externs dir="${src.dir}/package">
+                <file name="externs.js"/>
+            </externs>
 		</jscomp>
 
 		<echo>Minifying Javascript... DONE</echo>
@@ -68,13 +73,12 @@
 
 		<antcall target="minify" />
 
-        <replace file="${build.dir}/inverted.js" token="@version@" value="${version}" />
+
         <replace file="${build.dir}/inverted-min.js" token="@version@" value="${version}" />
 
         <delete dir="${temp.dir}"/>
 
         <echo>Build... DONE</echo>
 	</target>
-	
 
 </project>
