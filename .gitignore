@@ -1,5 +1,5 @@
 /.settings
 .project
-.iml
+*.iml
 /.idea
 /node_modules
