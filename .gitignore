@@ -1,5 +1,5 @@
-/build
 /.settings
 .project
 .iml
 /.idea
+/node_modules

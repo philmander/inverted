@@ -2,24 +2,24 @@
 <project name="Inverted" default="build" basedir="." >
 
 	<!-- build dirs -->
-	<property name="build.dir" value="${basedir}/build" />
+	<property name="build.dir" value="${basedir}/lib" />
 
 	<!-- src dirs -->
 	<property name="src.dir" value="${basedir}/src" />
 	<property name="test.dir" value="${basedir}/test" />
 	
 	<!-- other dirs -->
-	<property name="temp.dir" value="${basedir}/build/temp" />
+	<property name="temp.dir" value="${basedir}/lib/temp" />
 	<property name="version" value="99" />
-	<property name="lib.dir" value="${basedir}/lib" />
+	<property name="lib.dir" value="${basedir}/support" />
 	
-	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${basedir}/lib/ant/compiler.jar" />
-    <taskdef name="jshint" classname="com.philmander.jshint.JsHintAntTask" classpath="${basedir}/lib/ant/ant-jshint-0.3.3-deps.jar" />
-    <taskdef name="jstest" classname="com.philmander.jstest.ant.JsTestRunnerTask" classpath="${basedir}/lib/ant/ant-jstestrunner-0.1-deps.jar" />
+	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${basedir}/support/ant/compiler.jar" />
+    <taskdef name="jshint" classname="com.philmander.jshint.JsHintAntTask" classpath="${basedir}/support/ant/ant-jshint-0.3.3-deps.jar" />
+    <taskdef name="jstest" classname="com.philmander.jstest.ant.JsTestRunnerTask" classpath="${basedir}/support/ant/ant-jstestrunner-0.1-deps.jar" />
 
 	<target name="clean">
 		<echo>Doing clean...for ${build.dir}</echo>
-		<mkdir dir="${build.dir}/"/>
+		<mkdir dir="lib/"/>
 		<echo>Doing clean... DONE</echo>
 	</target>
 
@@ -46,7 +46,7 @@
         <replace file="${temp.dir}/package/intro.js" token="@version@" value="${version}" />
 		
 		<!-- uncompressed -->
-		<concat destfile="${build.dir}/inverted.js" fixlastline="yes">
+		<concat destfile="lib/inverted.js" fixlastline="yes">
 			<filelist dir="${temp.dir}">
 				<file name="package/intro.js" />
 				<file name="inverted/ProtoFactory.js" />
@@ -56,8 +56,8 @@
 		</concat>
 		
 		<!-- compressed -->
-		<jscomp compilationLevel="simple" warning="verbose" debug="false" output="${build.dir}/inverted-min.js">
-			<sources dir="${build.dir}">
+		<jscomp compilationLevel="simple" warning="verbose" debug="false" output="lib/inverted-min.js">
+			<sources dir="lib">
 				<file name="inverted.js" />
 			</sources>
             <externs dir="${src.dir}/package">
@@ -74,7 +74,7 @@
 		<antcall target="minify" />
 
 
-        <replace file="${build.dir}/inverted-min.js" token="@version@" value="${version}" />
+        <replace file="lib/inverted-min.js" token="@version@" value="${version}" />
 
         <delete dir="${temp.dir}"/>
 

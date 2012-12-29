@@ -1,0 +1,17 @@
+{
+    "name": "inverted",
+    "description": "IOC container",
+    "version": "0.0.4",
+    "homepage": "http://philmander.github.com/inverted/",
+    "author": "Phil Mander <philip.mander@gmail.com>",
+    "licenses": [
+        {
+            "type": "BSD",
+            "url": "https://github.com/philmander/inverted/master/LICENSE"
+        }
+    ],
+    "dependencies": {
+        "amdefine": ">=0.0.2"
+    },
+    "main": "./lib/inverted.js"
+}
