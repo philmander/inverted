@@ -15,7 +15,7 @@ var conf = {
     }
 };
 
-var AppContext = require("../build/inverted");
+var AppContext = require("../lib/inverted");
 
 var appContext = AppContext.create(conf, module);
 appContext.getProto("a", function(a) {
