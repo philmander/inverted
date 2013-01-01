@@ -144,7 +144,7 @@ define("inverted/ProtoFactory", function() {
                     var propertyArgs = this._createArgs([ propData[propName] ]);
 
                     if(typeof instance[propName] === "function") {
-                        instance[propName].apply(instance, propertyArgs[0]);
+                        instance[propName].call(instance, propertyArgs[0]);
                     } else {
                         instance[propName] = propertyArgs[0];
                     }

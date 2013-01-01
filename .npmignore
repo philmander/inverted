@@ -1,4 +1,8 @@
-.build.xml
+/.settings
+.project
+*.iml
+/.idea
+build.xml
 support/
 src/
 test/

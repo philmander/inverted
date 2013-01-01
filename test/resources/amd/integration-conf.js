@@ -88,6 +88,17 @@ define(function() {
             myUtil: {
                 module: "MyUtil",
                 scope: "singleton"
+            },
+
+            jquery: {
+                module: "jquery",
+                scope: "static"
+            },
+            f: {
+                module: "F",
+                props: {
+                    $: "*jquery"
+                }
             }
         }
     };

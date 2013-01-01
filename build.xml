@@ -32,7 +32,7 @@
 
     <target name="test" depends="lint">
 
-        <jstest dir="${basedir}/test" includes="**/*.html" phantomWin="${basedir}/lib/ant/phantomjs.exe" />
+        <jstest dir="${basedir}/test" includes="**/*.html" phantomWin="${basedir}/support/ant/phantomjs.exe" />
 
     </target>
 

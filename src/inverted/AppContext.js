@@ -29,11 +29,11 @@ define("inverted/AppContext", [ "inverted/ProtoFactory"], function(ProtoFactory)
         this.originalModule = originalModule || module;
 
         if(define.amd && typeof requirejs !== "undefined") {
-           this.loader = require;
+           this._loader = require;
         } else if(define.amd && typeof curl !== "undefined") {
-            this.loader = curl;
+            this._loader = curl;
         } else {
-            this.loader = this._commonRequire;
+            this._loader = this._commonRequire;
         }
     };
 
@@ -47,6 +47,15 @@ define("inverted/AppContext", [ "inverted/ProtoFactory"], function(ProtoFactory)
 
         var protoFactory = new ProtoFactory(config.protos);
         return new AppContext(config, protoFactory, originalModule);
+    };
+
+    /**
+     * Sets the module loader function to load modules
+     * @param {Function} loaderFn
+     */
+    AppContext.loader = function(loaderFn) {
+
+        this._loader = loaderFn;
     };
 
     /**
@@ -72,12 +81,12 @@ define("inverted/AppContext", [ "inverted/ProtoFactory"], function(ProtoFactory)
             deps = deps.concat(this._getDependencies(ids[i]));
         }
 
-        if(!this.loader) {
-            throw new Error("No AMD loader is defined");
+        if(!this._loader) {
+            throw new Error("No AMD _loader is defined");
         }
 
         // load all dependencies before attempting to create an instance        
-        this.loader(deps, function() {
+        this._loader(deps, function() {
                         
             //map deps to args
             var depMap = {};
