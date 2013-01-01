@@ -12,6 +12,7 @@ Download source
 
 or
 
-```npm install inverted
-
+```
+npm install inverted
+```
 
