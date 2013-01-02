@@ -18,9 +18,9 @@
         baseUrl: "resources/amd",
         paths: {
             "jquery" : "https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min",
-            "inverted/AppContext" : "../../../src/inverted/AppContext",
-            "inverted/ProtoFactory": "../../../src/inverted/ProtoFactory"
-            //"inverted" : "../../build/inverted-min"
+            //"inverted/AppContext" : "../../../src/inverted/AppContext",
+            //"inverted/ProtoFactory": "../../../src/inverted/ProtoFactory"
+            "inverted" : "../../../lib/inverted-min"
         }
     };
 
@@ -32,8 +32,8 @@
         window.require = window.curl;
     }
 
-    require(["inverted/AppContext", "integration-conf"], function(AppContext, conf) {
-    //require(["inverted", "integration-conf"], function(AppContext, conf)
+    //require(["inverted/AppContext", "integration-conf"], function(AppContext, conf) {
+    require(["inverted", "app-config"], function(AppContext, conf) {
 
 	var appContext = AppContext.create(conf);
     
@@ -106,7 +106,7 @@
         });
     });
 
-    asyncTest("simplePropertyInjectLiterals", 4, function() {
+    asyncTest("simplePropertyInjectLiterals", 5, function() {
 
 		appContext.getProto("d", function(d) {
 
@@ -114,6 +114,7 @@
 			assertSame(d.number, 88);
 			assertSame(d.bool, false);
 			assertNull(d.nully);
+            assertSame(d.fromMethod, "set");
 
             start();
 		});
