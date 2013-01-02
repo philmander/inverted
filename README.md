@@ -8,7 +8,7 @@ Download source
 
 <a href="https://raw.github.com/philmander/inverted/master/lib/inverted-min.js">Minified (~4.8kb/~1.7kb gzipped)</a>
 
-<a href="https://raw.github.com/philmander/inverted/master/lib/inverted.js">Uncoompressed</a>
+<a href="https://raw.github.com/philmander/inverted/master/lib/inverted.js">Uncompressed</a>
 
 or
 
