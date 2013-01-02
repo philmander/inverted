@@ -1,6 +1,6 @@
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/html">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Inverted: Javscript IOC Container</title>
@@ -11,241 +11,259 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
-      <header>
-        <h1>I<span class="n">ᴎ</span>VERTED</h1>
-        <p>Javascript <span title="Inversion of Control">IOC</span> container</p>
+</head>
+<body>
+<header>
+    <h1>I<span class="n">ᴎ</span>VERTED</h1>
 
-        <div class="details">
-            <p class="view"><a href="https://github.com/philmander/inverted">View the Project on GitHub</a></p>
-        </div>
-      </header>
+    <p>Javascript <span title="Inversion of Control">IOC</span> container</p>
 
-      <nav>
-          <ul>
-              <li><a href="#how">How</a></li>
+    <div class="details">
+        <p class="view"><a href="https://github.com/philmander/inverted">View the Project on GitHub</a></p>
+    </div>
+</header>
 
-              <li><a href="#examples">Usage</a></li>
+<nav>
+    <ul>
+        <li><a href="#how">How</a></li>
 
-              <li><a href="#api">API</a></li>
+        <li><a href="#examples">Usage</a></li>
 
-              <li><a href="#faq">FAQ</a></li>
-          </ul>
-      </nav>
+        <li><a href="#api">API</a></li>
 
-      <section id="intro">
+        <li><a href="#faq">FAQ</a></li>
+    </ul>
+</nav>
 
-            <h2>Inverted</h2>
+<section id="intro">
 
-            <p class="intro"><b>Inverted is a Javascript Inversion of Control container that builds up on existing module
-            loader systems, in the browser and in Node, to powerfully manage dependency injection in your
-            Javascript application.</b></p>
-            <p>Javascript module loading systems such as the <a href="http://wiki.commonjs.org/wiki/Modules/1.1">Common JS module spec</a>
-            and <a href="https://github.com/amdjs/amdjs-api/wiki/AMD">AMD</a> manage the loading of your application's
-            dependencies, but they don't actually inject dependencies, wiring your object oriented code together. Inverted
-            uses a separate application configuration file to define how your Javascript 'classes' interact without
-            needing to add any library specific code.</p>
+    <h2>Inverted</h2>
 
-            <h3>Get it</h3>
+    <p class="intro"><b>Inverted is a Javascript Inversion of Control container that builds up on AMD or Common JS
+        module
+        loading systems, to powerfully, yet unobtrusively, manage dependency injection and wire up modular Javascript
+        applications.</b></p>
 
-            <p>For the browser:</p>
+    <p>Javascript module loading systems such as the <a href="http://wiki.commonjs.org/wiki/Modules/1.1">Common JS
+        module spec</a>
+        and <a href="https://github.com/amdjs/amdjs-api/wiki/AMD">AMD</a> manage the loading of your application's
+        dependencies, but they don't actually inject dependencies and wire your code together. Inverted
+        uses a separate application configuration file to define how your Javascript "classes" interact without
+        needing to add any library specific code within your modules.</p>
 
-            <p><a href="https://raw.github.com/philmander/inverted/master/lib/inverted-min.js">Minfiied (~4.8kb/~1.7kb gzipped)<br>
-            <a href="https://raw.github.com/philmander/inverted/master/lib/inverted.js">Uncompressed</a></p>
-            <p>Or for Node.js</p>
+    <h3>Get it</h3>
 
-            <p><code>npm install inverted</code></p>
+    <p>For the browser:</p>
 
-            <p>In the browser Inverted depends on a module loading system being present. Inverted will automatically
-            detect and work with <a href="http://requirejs.org/">RequireJS</a> or <a href="https://github.com/cujojs/curl">Curl</a>,
-            you can also specify a <a href="#apiLoader">different module loading function</a>.</p>
+    <p><a href="https://raw.github.com/philmander/inverted/master/lib/inverted-min.js">Minfiied (~4.8kb/~1.7kb
+        gzipped</a>)<br>
+        <a href="https://raw.github.com/philmander/inverted/master/lib/inverted.js">Uncompressed</a></p>
 
-      </section>
-      <section id="how">
-            <h2>How it works:</h2>
+    <p>Or for Node.js</p>
 
-            <p>The following examples unimaginatively borrow and adapt the movie related examples
-            from <a href="http://martinfowler.com/articles/injection.html">Martin Fowler's
+    <p><code>npm install inverted</code></p>
+
+    <p>In the browser Inverted depends on a module loading system being present. Inverted will automatically
+        detect and work with <a href="http://requirejs.org/">RequireJS</a> or <a href="https://github.com/cujojs/curl">Curl</a>,
+        you can also specify a <a href="#apiLoader">different module loading function</a>.</p>
+
+</section>
+<section id="how">
+    <h2>How it works:</h2>
+
+    <p>The following examples unimaginatively borrow and adapt the movie related examples
+        from <a href="http://martinfowler.com/articles/injection.html">Martin Fowler's
             article on inversion of control.</a></p>
 
-            <h3>#1: No dependency injection</h3>
+    <h3>#1: No dependency injection</h3>
 
-            <p>In these examples two Javascript classes are defined within AMD modules. In the <code>MovieLister</code> module AMD's <i>define</i> mechanism
-            loads the <code>MovieFinder</code> dependency, but does not inject it. Instead the construction of the <code>MovieFinder</code>
-            object must be hard coded within the constructor function of the <code>MovieLister</code>.</p>
+    <p>In these examples two Javascript classes are defined within AMD modules. In the <code>MovieLister</code> module
+        AMD's <i>define</i> mechanism
+        loads the <code>MovieFinder</code> dependency, but does not inject it. Instead the construction of the <code>MovieFinder</code>
+        object must be hard coded within the constructor function of the <code>MovieLister</code>.</p>
 
-            <div class="clearfix gist-group">
-                <script src="https://gist.github.com/4422034.js"></script>
-            </div>
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4422034.js"></script>
+    </div>
 
-            <h3>#2: With dependency injection</h3>
+    <h3>#2: With dependency injection</h3>
 
-            <p>The next example makes an improvement by injecting an instance of the <code>MovieFinder</code> into the <code>MovieLister</code>
-            as a constructor argument. This makes it easier to test the <code>MovieLister</code> as a standalone unit by
-            mocking its dependencies (using a framework such as <a href="http://jsmockito.org/">JSMockito</a>). But wiring up the dependencies in the <code>require</code> block, is ugly and
-            would be much more difficult to maintain in an entire real world application.</p>
+    <p>The next example makes an improvement by injecting an instance of the <code>MovieFinder</code> into the <code>MovieLister</code>
+        as a constructor argument. This makes it easier to test the <code>MovieLister</code> as a standalone unit by
+        mocking its dependencies (using a framework such as <a href="http://jsmockito.org/">JSMockito</a>). But wiring
+        up the dependencies in the <code>require</code> block, is ugly and
+        would be much more difficult to maintain in an entire real world application.</p>
 
-            <div class="clearfix gist-group">
-                <script src="https://gist.github.com/4422058.js"></script>
-            </div>
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4422058.js"></script>
+    </div>
 
-            <h3>#3: Inversion of control</h3>
+    <h3>#3: Inversion of control</h3>
 
-            <p>The final example introduces Inverted and shows how inversion of control is used to wire up the dependencies
-            using the application configuration. </p>
+    <p>The final example introduces Inverted and shows how inversion of control is used to wire up the dependencies
+        using the application configuration. </p>
 
-            <p>Each dependency which can be managed by Inverted is called a <i><b>proto</b></i>. A proto must specify its
-            module (which can be an AMD or CommonJS module) and can optionally specify its values and dependencies to
-            be injected (as either arguments, properties or methods), its scope and another proto that it extends.</p>
+    <p>Each dependency which can be managed by Inverted is called a <i><b>proto</b></i>. A proto must specify its
+        module (which can be an AMD or CommonJS module) and can optionally specify its values and dependencies to
+        be injected (as either arguments, properties or methods), its scope and another proto that it extends.</p>
 
-            <div class="gist-group clearfix">
-                <script src="https://gist.github.com/4422082.js"></script>
-            </div>
+    <div class="gist-group clearfix">
+        <script src="https://gist.github.com/4422082.js"></script>
+    </div>
 
-            <p>Dependencies and literal values can be managed in the application config. In the example, the JSONP url can be easily changed
-            without touching the actual application code.</p>
-            <p>You can also see the <code>mongoMovieFinder</code> proto, another implementation of the movie finder,
-            so different implementations can be easily switched out just by changing the movie lister's dependency.</p>
+    <p>Dependencies and literal values can be managed in the application config. In the example, the JSONP url can be
+        easily changed
+        without touching the actual application code.</p>
 
-            <h3>Modules, AMD and Node</h3>
+    <p>You can also see the <code>mongoMovieFinder</code> proto, another implementation of the movie finder,
+        so different implementations can be easily switched out just by changing the movie lister's dependency.</p>
 
-            <p>All the module examples on this page are written using AMD modules, but they could also be written using
-            Common JS modules to run in Node.</p>
-            <p>If running in the browser, Inverted will attempt to use RequireJS or Curl.</p>
-            <p>If running in Node it will attempt to load modules as Common JS. You can also use the AMD format in Node using a
-            library such as <a href="https://github.com/jrburke/amdefine">amdefine</a>.</p>
-            <p>Here's a version of the example above written using the Common JS module spec:</p>
+    <h3>Modules, AMD and Node</h3>
 
-            <div class="gist-group clearfix">
-                <script src="https://gist.github.com/4430581.js"></script>
-            </div>
+    <p>All the module examples on this page are written using AMD modules, but they could also be written using
+        Common JS modules to run in Node.</p>
 
-      </section>
+    <p>If running in the browser, Inverted will attempt to use RequireJS or Curl.</p>
 
-      <section id="examples">
-          <h2>Usage guide</h2>
+    <p>If running in Node it will attempt to load modules as Common JS. You can also use the AMD format in Node using a
+        library such as <a href="https://github.com/jrburke/amdefine">amdefine</a>.</p>
 
-          <h3>Instantiation</h3>
+    <p>Here's a version of the example above written using the Common JS module spec:</p>
 
-          <p>A simple example of using Inverted to construct an instance of an object. In this
-            example the result is the equivalent of using the <i>new</i> keyword.</p>
+    <div class="gist-group clearfix">
+        <script src="https://gist.github.com/4430581.js"></script>
+    </div>
 
-          <div class="clearfix gist-group">
-            <script src="https://gist.github.com/4421686.js"></script>
-          </div>
+</section>
 
-          <h3>Constructor injection: Literal values</h3>
+<section id="examples">
+    <h2>Usage guide</h2>
 
-          <p>Literal values are set in the application configuration and injected as arguments when the object is instantiated.</p>
+    <h3>Instantiation</h3>
 
-          <div class="clearfix gist-group">
-              <script src="https://gist.github.com/4422219.js"></script>
-          </div>
+    <p>A simple example of using Inverted to construct an instance of an object. In this
+        example the result is the equivalent of using the <i>new</i> keyword.</p>
 
-          <h3>Constructor injection: Literal values map</h3>
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4421686.js"></script>
+    </div>
 
-          <div class="clearfix gist-group">
-              <script src="https://gist.github.com/4422231.js"></script>
-          </div>
+    <h3>Constructor injection: Literal values</h3>
 
-          <h3>Constructor injection: Dependencies</h3>
+    <p>Literal values are set in the application configuration and injected as arguments when the object is
+        instantiated.</p>
 
-          <p>A tree of dependencies are instantiated and injected using the application configuration.</p>
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4422219.js"></script>
+    </div>
 
-          <div class="clearfix gist-group">
-              <script src="https://gist.github.com/4422282.js"></script>
-          </div>
+    <h3>Constructor injection: Literal values map</h3>
 
-          <p>Beginning an injected string with a <b>*</b> will reference another prototype definition in the application configuration. A longer hand alternative is to create an object with a <i>ref</i> property.</p>
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4422231.js"></script>
+    </div>
 
-          <h3>Property and method injection</h3>
+    <h3>Constructor injection: Dependencies</h3>
 
-          <div class="clearfix gist-group">
-            <script src="https://gist.github.com/4422436.js"></script>
-          </div>
+    <p>A tree of dependencies are instantiated and injected using the application configuration.</p>
 
-          <h3>Scopes</h3>
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4422282.js"></script>
+    </div>
 
-          <p>Inverted supports three scopes <i>prototype</i>, <i>singleton</i> and <i>static</i>. The first is used by
-          default and does not need to be explicitly specified in the application config. Protos that use the
-          singleton scope will only be instantiated once.</p>
+    <p>Beginning an injected string with a <b>*</b> will reference another prototype definition in the application
+        configuration. A longer hand alternative is to create an object with a <i>ref</i> property.</p>
 
-          <p>Static scopes are just used to get a reference to an object. No injection is performed on static scoped protos.</p>
+    <h3>Property and method injection</h3>
 
-          <div class="clearfix gist-group">
-            <script src="https://gist.github.com/4422560.js"></script>
-          </div>
-          <h3>Prototypal inheritance</h3>
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4422436.js"></script>
+    </div>
 
-          <p>Super objects in the prototype chain are treated as another form of dependency with Inverted and
-          prototypal inheritance chains be managed entirely within the application configuration.</p>
+    <h3>Scopes</h3>
 
-          <div class="clearfix gist-group">
-             <script src="https://gist.github.com/4422634.js"></script>
-          </div>
+    <p>Inverted supports three scopes <i>prototype</i>, <i>singleton</i> and <i>static</i>. The first is used by
+        default and does not need to be explicitly specified in the application config. Protos that use the
+        singleton scope will only be instantiated once.</p>
 
-          <h3>Factory methods</h3>
+    <p>Static scopes are just used to get a reference to an object. No injection is performed on static scoped
+        protos.</p>
 
-          <p>Factory methods can be used to generate injected values which are dynamic.</p>
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4422560.js"></script>
+    </div>
+    <h3>Prototypal inheritance</h3>
 
-          <div class="clearfix gist-group">
-            <script src="https://gist.github.com/4422682.js"></script>
-          </div>
-      </section>
+    <p>Super objects in the prototype chain are treated as another form of dependency with Inverted and
+        prototypal inheritance chains be managed entirely within the application configuration.</p>
 
-      <section id="api">
-          <h2>API</h2>
-          <h3><i>AppContext</i> Inverted#create(Object applicationConfiguration, [Object originalCommonJsModule])</h3>
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4422634.js"></script>
+    </div>
 
-          <p>Creates an instance of an Inverted <i>AppContext</i> using the given application configuration
-          object.</p>
+    <h3>Factory methods</h3>
 
-          <p>Inverted uses the <i>originalCommonJsModule</i> parameter for loading modules on the correct path in Common JS
-          environments such as Node.</p>
+    <p>Factory methods can be used to generate injected values which are dynamic.</p>
 
-          <h3><i>Object</i> AppContext#getProto(String protoId, String protoId..., Function callback(proto, proto...)</h3>
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4422682.js"></script>
+    </div>
+</section>
 
-          <p>Gets a proto object, which maybe an instance of a class, if prototype or singleton scopes are used, or a direct referencing to a Javascript object, function
-          or literal value if static scope is used.</p>
+<section id="api">
+    <h2>API</h2>
 
-          <h3 id="apiLoader">AppContext#loader(Function loaderFn)</h3>
+    <h3><i>AppContext</i> Inverted#create(Object applicationConfiguration, [Object originalCommonJsModule])</h3>
 
-          <p>Inverted will first try to determine the AMD implementations Require JS or Curl ar present, otherwise it will
-          default to using a Common JS module loader.</p>
+    <p>Creates an instance of an Inverted <i>AppContext</i> using the given application configuration
+        object.</p>
 
-          <p>If you wish to use another module loading mechanism use this method to pass a reference to a loader function.</p>
+    <p>Inverted uses the <i>originalCommonJsModule</i> parameter for loading modules on the correct path in Common JS
+        environments such as Node.</p>
 
-          <h3>Application Config reference</h3>
+    <h3><i>Object</i> AppContext#getProto(String protoId, String protoId..., Function callback(proto, proto...)</h3>
 
-          <div class="clearfix">
-              <script src="https://gist.github.com/4424503.js"></script>
-          </div>
+    <p>Gets a proto object, which maybe an instance of a class, if prototype or singleton scopes are used, or a direct
+        referencing to a Javascript object, function
+        or literal value if static scope is used.</p>
 
-      </section>
+    <h3 id="apiLoader">AppContext#loader(Function loaderFn)</h3>
 
-      <section id="faq">
-          <h2>FAQ</h2>
+    <p>Inverted will first try to determine the AMD implementations Require JS or Curl ar present, otherwise it will
+        default to using a Common JS module loader.</p>
 
-          <h3>How should I inject 3rd party libraries such as jQuery?</h3>
+    <p>If you wish to use another module loading mechanism use this method to pass a reference to a loader function.</p>
 
-          <p>You can use static scope to inject these dependencies, but for such common libs you may find it more
-              practical to use your dependency loader's standard loading mechanism.</p>
+    <h3>Application Config reference</h3>
 
-          <div class="clearfix gist-group">
-              <script src="https://gist.github.com/4424805.js"></script>
-          </div>
+    <div class="clearfix">
+        <script src="https://gist.github.com/4424503.js"></script>
+    </div>
+
+</section>
+
+<section id="faq">
+    <h2>FAQ</h2>
+
+    <h3>How should I inject 3rd party libraries such as jQuery?</h3>
+
+    <p>You can use static scope to inject these dependencies, but for such common libs you may find it more
+        practical to use your dependency loader's standard loading mechanism.</p>
+
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4424805.js"></script>
+    </div>
 
 
-      </section>
+</section>
 
-      <footer>
+<footer>
 
-          <p>2013 - Inverted: Javascript IOC container by Phil Mander</p>
+    <p>2013 - Inverted: Javascript IOC container by Phil Mander</p>
 
-      </footer>
+</footer>
 
-    <script src="javascripts/scale.fix.js"></script>
-    
-  </body>
+<script src="javascripts/scale.fix.js"></script>
+
+</body>
 </html>
