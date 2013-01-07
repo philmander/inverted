@@ -1,15 +1,19 @@
 {
     "name": "inverted",
-    "description": "IOC container",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "homepage": "http://philmander.github.com/inverted/",
     "author": "Phil Mander <philip.mander@gmail.com>",
+    "description" : "Inverted is an Inversion of Control container. It uses a separate configuration file to express how classes are instantiated and how they interact. Once these defaults and relationships have been defined, an application context can be created, and instances of the classes can be used.",
     "licenses": [
         {
-            "type": "BSD",
+            "type": "MIT",
             "url": "https://github.com/philmander/inverted/master/LICENSE"
         }
     ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/philmander/inverted.git"
+    },
     "dependencies": {
         "amdefine": ">=0.0.2"
     },
