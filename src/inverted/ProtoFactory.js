@@ -195,13 +195,15 @@ define("inverted/ProtoFactory", function() {
 
                 var isObject = typeof argData === "object";
 
-                // if arg has ref
                 if((isObject && argData.ref) || (typeof argData === "string" && argData.match(/^\*[^\*]/) !== null)) {
+                    // if arg has references another proto
                     args[i] = this.getProto(argData.ref || argData.substr(1));
                 } else if(isObject && argData.factoryRef) {
+                    // if arg uses a factory
                     args[i] = this._getProtoFromFactory(argData.factoryRef, argData.factoryMethod);
-                } else if(isObject && argData.proto) {
-                    args[i] = this._createInstance(argData.module, argData.args, argData.props);
+                } else if(isObject && argData.module) {
+                    // if arg uses an anonymous proto
+                    args[i] = this._createInstance(argData.module, argData.args, argData.props, null);
                 } else if(isObject) {
                     args[i] = {};
                     // if arg is object containing values
@@ -209,13 +211,17 @@ define("inverted/ProtoFactory", function() {
                         if(argData.hasOwnProperty(key)) {
                             var obj = argData[key];
 
-                            if(obj && (obj.ref || (typeof obj === "string" && obj.match(/^\*[^\*]/) !== null))) {
+                            if(obj && (obj.ref || (typeof obj === "string" && obj.match(/^\*[^\*]/) !== false))) {
+                                // if object value is a reference
                                 args[i][key] = this.getProto(obj.ref || obj.substr(1));
                             } else if(obj && obj.factoryRef) {
+                                // if object value uses a factory
                                 args[i][key] = this._getProtoFromFactory(obj.factoryRef, obj.factoryMethod);
                             } else if(obj && obj.module) {
-                                args[i][key] = this._createInstance(obj.module, obj.args, obj.props);
+                                // if object value is an anonymous proto
+                                args[i][key] = this._createInstance(obj.module, obj.args, obj.props, null);
                             } else {
+                                //if object value is a literal value
                                 args[i][key] = obj;
                             }
                         }
