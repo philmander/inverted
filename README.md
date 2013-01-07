@@ -54,7 +54,7 @@ Please use the Github issue tracker for this project to raise bugs, feature requ
 ###/src
 Core source code is here, split into two sub directories:
 
-* __package__ Files used added to the core source code to create a working build
+* __package__ Files added to the core source code to create a working build
 * __inverted__ The Inverted JS modules, _AppContext_ and _ProtoFactory_
 
 ###/lib 
@@ -68,14 +68,14 @@ Additional libraries in Javascript and Java for build and testing
 
 ##How to build
 
-Inverted is built using Ant. The build performs the following steps:
+Inverted is built using Apache Ant. The build performs the following steps:
 
 1. Lints the source code using JSHint.
 2. Runs the unit tests in Phantom JS
 3. Concatenates the source files to create an unminified build
 4. Compresses the unminified build using Google Closure compiler 
 
-To perform install [Apache Ant](http://ant.apache.org/bindownload.cgi) on your path and, in the project root directory, run:
+To perform a build first install [Apache Ant](http://ant.apache.org/bindownload.cgi) on your path and, in the project root directory, run:
 
 ```
 ant
