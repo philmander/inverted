@@ -16,24 +16,26 @@
 
     var TEST_BUILD  = true;
 
-    var invertedModule = "inverted/AppContext";
+    var amdConfig = {}, invertedModule;
+    amdConfig.baseUrl = "resources/amd";
     if(TEST_BUILD) {
+        console.log("Testing lib");
         invertedModule = "inverted";
-    }
-
-    var amdConfig = {
-        baseUrl: "resources/amd",
-        paths: {
+        amdConfig.paths = {
+            "jquery" : "../../../support/test/jquery",
+            "inverted" : "../../../lib/inverted-min"
+        };
+    } else {
+        console.log("Testing src");
+        invertedModule = "inverted/AppContext";
+        amdConfig.paths = {
             "jquery" : "../../../support/test/jquery",
             "inverted/Util" : "../../../src/inverted/Util",
             "inverted/Promise" : "../../../src/inverted/Promise",
             "inverted/AppContext" : "../../../src/inverted/AppContext",
-            "inverted/ProtoFactory": "../../../src/inverted/ProtoFactory",
-
-            //test the built version
-            "inverted" : "../../../lib/inverted-min"
-        }
-    };
+            "inverted/ProtoFactory": "../../../src/inverted/ProtoFactory"
+        };
+    }
 
     //figure out the amd loader
     if(window.requirejs) {
