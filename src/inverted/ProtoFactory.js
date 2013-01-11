@@ -211,7 +211,7 @@ define("inverted/ProtoFactory", function() {
                         if(argData.hasOwnProperty(key)) {
                             var obj = argData[key];
 
-                            if(obj && (obj.ref || (typeof obj === "string" && obj.match(/^\*[^\*]/) !== false))) {
+                            if(obj && (obj.ref || (typeof obj === "string" && obj.match(/^\*[^\*]/) !== null))) {
                                 // if object value is a reference
                                 args[i][key] = this.getProto(obj.ref || obj.substr(1));
                             } else if(obj && obj.factoryRef) {
