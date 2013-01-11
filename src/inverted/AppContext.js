@@ -10,7 +10,8 @@
  *    //do stuff
  * }
  */
-define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise"], function(ProtoFactory, Promise) {
+define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "inverted/Util"],
+    function(ProtoFactory, Promise, Util) {
 
     "use strict";
 
@@ -142,7 +143,8 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise"], fu
 
         // inheritance
         if(protoData.extendsRef) {
-            deps = this._getDependencies(protoData.extendsRef, deps);
+            var extendsRef = Util.parseProtoReference(protoData.extendsRef).protoId;
+            deps = this._getDependencies(extendsRef, deps);
         }
 
         if(protoData.args) {
@@ -170,6 +172,7 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise"], fu
     AppContext.prototype._getDependenciesFromArgs = function(confArgs, deps) {
 
         if(confArgs) {
+            var ref;
             for( var i = 0; i < confArgs.length; i++) {
                 var argData = confArgs[i];
 
@@ -180,8 +183,9 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise"], fu
 
                 var isObject = typeof argData === "object";
                 // if arg has ref
-                if((isObject && argData.ref) || (typeof argData === "string" && argData.match(/^\*[^\*]/) !== null)) {
-                    deps = this._getDependencies(argData.ref || argData.substr(1), deps);
+                if((isObject && argData.ref) || Util.matchProtoRefString(argData)) {
+                    ref = Util.parseProtoReference(argData.ref || argData.substr(1)).protoId;
+                    deps = this._getDependencies(ref, deps);
                 }
                 else if(isObject && argData.factoryRef) {
                     deps = this._getDependencies(argData.factoryRef, deps);
@@ -194,8 +198,9 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise"], fu
                     for( var key in argData) {
                         if(argData.hasOwnProperty(key)) {
                             var obj = argData[key];
-                            if(obj && (obj.ref || (typeof obj === "string" && obj.match(/^\*[^\*]/) !== null))) {
-                                deps = this._getDependencies(obj.ref || obj.substr(1), deps);
+                            if(obj && (obj.ref || Util.matchProtoRefString(obj))) {
+                                ref = Util.parseProtoReference(obj.ref || obj.substr(1)).protoId;
+                                deps = this._getDependencies(ref, deps);
                             }
                             else if(obj && obj.factoryRef) {
                                 deps = this._getDependencies(obj.factoryRef, deps);

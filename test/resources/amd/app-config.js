@@ -92,7 +92,9 @@ define(function() {
                 module: "MyUtil",
                 scope: "singleton"
             },
-
+            anotherUtil: {
+                module: "MyUtil"
+            },
             jquery: {
                 module: "jquery",
                 scope: "static"
@@ -117,7 +119,29 @@ define(function() {
             },
             x: {
                 module: "X" //shouldn't exist
+            },
+            passingInterfaceProto: {
+                module: "a",
+                args: [
+                    "*anotherUtil [typeUtil]"
+                ],
+                props: {
+                    util: "*anotherUtil[ typeUtil , numberUtil ]"
+                },
+                extendsRef: "anotherUtil[typeUtil]"
+            },
+            failingInterfaceProto: {
+                module: "a",
+                props: {
+                    util: "*anotherUtil [ numberUtil, animalUtil ]"
+                }
             }
+        },
+        interfaces: {
+            //spacing is important between method names to test the splitting regex
+            typeUtil: "isNumber, isFunction , isArray",
+            numberUtil: "isNumber",
+            animalUtil: "isJellyfish,isTiger"
         }
     };
 });

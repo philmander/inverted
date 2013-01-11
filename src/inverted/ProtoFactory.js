@@ -1,7 +1,7 @@
 /**
  * The proto factory is responsible for creating instances of defined objects using the config tree
  */
-define("inverted/ProtoFactory", function() {
+define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
 
     "use strict";
 
@@ -34,45 +34,48 @@ define("inverted/ProtoFactory", function() {
                 this.dependencyMap[depId] = depMap[depId];                
             }
         }
-    };    
+    };
 
     /**
      * Gets a proto given an id
+     * The parsing also looks for an optional interface id using square brackets notation. E.g. protoId[interfaceId]
      * 
-     * @param {String} id
+     * @param {String} protoRef a proto reference string
      * @return {Object} A reference to a javascript object
      */
-    ProtoFactory.prototype.getProto = function(id) {
+    ProtoFactory.prototype.getProto = function(protoRef) {
 
-        var protoData = this.getProtoConfig(id);
+        var protoData = Util.parseProtoReference(protoRef);
+        var protoConf = this.getProtoConfig(protoData.protoId);
 
         var instance = null;
 
         // for static just get a reference
-        if(protoData.scope === "static") {
+        if(protoConf.scope === "static") {
 
-            if(typeof protoData.module === "string") {
-                instance = this.dependencyMap[protoData.module];
+            if(typeof protoConf.module === "string") {
+                instance = this.dependencyMap[protoConf.module];
             }
         // create an instance if not singleton or singleton and no instance
         // defined yet (lazy loaded singletons)
-        } else if((!protoData.scope || protoData.scope !== "singleton") ||
-                (protoData.scope === "singleton" && !protoData.instance)) {
+        } else if((!protoConf.scope || protoConf.scope !== "singleton") ||
+                (protoConf.scope === "singleton" && !protoConf.instance)) {
 
             var injectAppContext =
-                this.injectAppContext === true && protoData.injectAppContext !== false ||
-                this.injectAppContext !== true && protoData.injectAppContext === true;
+                this.injectAppContext === true && protoConf.injectAppContext !== false ||
+                this.injectAppContext !== true && protoConf.injectAppContext === true;
 
-            instance = this._createInstance(protoData.module, protoData.args, protoData.props, protoData.extendsRef, injectAppContext);
+            instance = this._createInstance(protoConf.module, protoConf.args, protoConf.props, protoConf.extendsRef,
+                                            injectAppContext, protoData.interfaces);
 
             // save instance if singleton
-            if(protoData.scope && protoData.scope === "singleton") {
-                protoData.instance = instance;
+            if(protoConf.scope && protoConf.scope === "singleton") {
+                protoConf.instance = instance;
             }
         }
         // its a singleton and instance has already been created
         else {
-            instance = protoData.instance;
+            instance = protoConf.instance;
         }
 
         return instance;
@@ -81,21 +84,18 @@ define("inverted/ProtoFactory", function() {
     /**
      * Uses factory config to create a new instance
      *
-     * @param proto {String|Object} this might be a string or an proto
+     * @param protoId {String|Object} this might be a string or an proto
      * @param argData
      * @param propData
      * @param extendsRef
      * @param injectAppContext
+     * @param interfaces
      * @return
      */
-    ProtoFactory.prototype._createInstance = function(proto, argData, propData, extendsRef, injectAppContext) {
+    ProtoFactory.prototype._createInstance = function(protoId, argData, propData, extendsRef, injectAppContext, interfaces) {
 
         var instance = null;
-
-        //if the proto is a
-        if(typeof proto === "string") {
-            proto = this.dependencyMap[proto];
-        }
+        var proto = this.dependencyMap[protoId];
 
         // constructor injection
         var args = this._createArgs(argData);
@@ -103,6 +103,12 @@ define("inverted/ProtoFactory", function() {
         // inheritance
         if(extendsRef) {
             this._extendProto(proto, this.getProto(extendsRef));
+        }
+
+        //check implementation
+        //if an interface id specified, check the implementation
+        if(interfaces) {
+            this._checkImplements(protoId, proto.prototype, interfaces);
         }
 
         // ugly but works. would like a better way
@@ -197,6 +203,7 @@ define("inverted/ProtoFactory", function() {
         // figure out constructors
         var args = [];
         if(confArgs) {
+            var ref;
             for( var i = 0; i < confArgs.length; i++) {
                 var argData = confArgs[i];
 
@@ -208,16 +215,16 @@ define("inverted/ProtoFactory", function() {
 
                 var isObject = typeof argData === "object";
 
-                if((isObject && argData.ref) || (typeof argData === "string" && argData.match(/^\*[^\*]/) !== null)) {
+                if((isObject && argData.ref) || Util.matchProtoRefString(argData)) {
                     // if arg has references another proto
-                    var ref = argData.ref || argData.substr(1);
-                    args[i] = this._getProtoFromReference(ref);
+                    ref = argData.ref || argData.substr(1);
+                    args[i] = this.getProto(ref);
                 } else if(isObject && argData.factoryRef) {
                     // if arg uses a factory
                     args[i] = this._getProtoFromFactory(argData.factoryRef, argData.factoryMethod);
                 } else if(isObject && argData.module) {
                     // if arg uses an anonymous proto
-                    args[i] = this._createInstance(argData.module, argData.args, argData.props, null, argData.injectAppContext);
+                    args[i] = this._createInstance(argData.module, argData.args, argData.props, null, argData.injectAppContext, null);
                 } else if(isObject) {
                     args[i] = {};
                     // if arg is object containing values
@@ -225,16 +232,16 @@ define("inverted/ProtoFactory", function() {
                         if(argData.hasOwnProperty(key)) {
                             var obj = argData[key];
 
-                            if(obj && (obj.ref || (typeof obj === "string" && obj.match(/^\*[^\*]/) !== null))) {
+                            if(obj && (obj.ref || Util.matchProtoRefString(obj))) {
                                 // if object value is a reference
-                                var ref = obj.ref || obj.substr(1);
-                                args[i][key] = this._getProtoFromReference(ref);
+                                ref = obj.ref || obj.substr(1);
+                                args[i][key] = this.getProto(ref);
                             } else if(obj && obj.factoryRef) {
                                 // if object value uses a factory
                                 args[i][key] = this._getProtoFromFactory(obj.factoryRef, obj.factoryMethod);
                             } else if(obj && obj.module) {
                                 // if object value is an anonymous proto
-                                args[i][key] = this._createInstance(obj.module, obj.args, obj.props, null, argData.injectAppContext);
+                                args[i][key] = this._createInstance(obj.module, obj.args, obj.props, null, argData.injectAppContext, null);
                             } else {
                                 //if object value is a literal value
                                 args[i][key] = obj;
@@ -277,37 +284,29 @@ define("inverted/ProtoFactory", function() {
         proto.prototype.constructor = proto;
     };
 
-    ProtoFactory.prototype._getProtoFromReference = function(ref) {
-
-        var depData = Util.parseDependencyRef(ref);
-        var proto = this.getProto(depData.protoId);
-
-        //if an interface id specified, check the implementation
-        if(depData.interfaceId) {
-            self._checkImplements(depData.protoId, proto, depData.interfaceId);
-        }
-        return proto;
-    };
-
     /**
-     * Warns if a proto instance does not implement any of the methods defined in an interface
-     * @param protoId
-     * @param proto
-     * @param interfaceId
+     * Throws am error if a proto instance does not implement any of the methods defined in an interface
+     * @param {String} protoId
+     * @param {Object} obj
+     * @param {Array} interfaces
      */
-    ProtoFactory.prototype._checkImplements = function(protoId, proto, interfaceId) {
+    ProtoFactory.prototype._checkImplements = function(protoId, obj, interfaces) {
 
-        var inter = this.getInterfaceConfig(interfaceId);
-        var methods = inter.split(/(\s+)?,(\s+)?/);
-        var errors = [];
-        for(var i = 0; i < methods.length; i++) {
-            if(typeof inter[methods[i]] !== "function") {
-                errors.push(protoId + " does not implement the method '" + methods[i] + "'");
+        var i, j, currentInterface, methods, errors;
+        for(i = 0; i < interfaces.length; i++) {
+            currentInterface = this.getInterfaceConfig(interfaces[i]);
+            methods = Util.splitCommaDelimited(currentInterface);
+            errors = [];
+            for(j = 0; j < methods.length; j++) {
+                if(typeof obj[methods[j]] !== "function") {
+                    errors.push(protoId + " does not implement the method '" + methods[j] + "'");
+                }
             }
-        }
 
-        if(errors.length) {
-            throw new Error(errors.join("\n"));
+            if(errors.length) {
+                throw new Error("Interface [ " + interfaces[i] + "] not implemented: \n\t" + errors.join("\n\t"));
+
+            }
         }
     };
 
@@ -320,77 +319,22 @@ define("inverted/ProtoFactory", function() {
     ProtoFactory.prototype.getProtoConfig = function(id) {
 
         var protos = this.config.protos;
-
+        id = Util.trim(id);
         if(protos && protos.hasOwnProperty(id)) {
             return protos[id];
         } else {
-            throw new Error("No proto is defined for " + id);
+            throw new Error("No proto is defined for [" + id + "]");
         }
     };
 
     ProtoFactory.prototype.getInterfaceConfig = function(id) {
 
         var interfaces = this.config.interfaces;
-
+        id = Util.trim(id)
         if(interfaces && interfaces.hasOwnProperty(id)) {
             return interfaces[id];
         } else {
-            throw new Error("No interface is defined for " + id);
-        }
-    };
-    
-    var Util = {};
-    
-    /**
-     * Strict check to see if an object is an array.
-     */
-    Util.isArray = function(obj) {
-
-        if(Array.isArray) {
-            return Array.isArray(obj);
-        }
-        return Object.prototype.toString.call(obj) === "[object Array]";
-    };
-
-    /**
-     * Taken directly from jquery
-     */
-    Util.inArray = function(elem, array) {
-
-        if(array.indexOf) {
-            return array.indexOf(elem);
-        }
-
-        for( var i = 0, length = array.length; i < length; i++) {
-            if(array[i] === elem) {
-                return i;
-            }
-        }
-
-        return -1;
-    };
-
-    /**
-     * Parses the proto id and interface id from a dependency reference string
-     * @param ref
-     * @return {{protoId: *, interfaceId: (*|null)}}
-     */
-    Util.parseDependencyRef = function(ref) {
-
-        var parsedRef = ref.match(/^(.+?)(\[(.+?)\])?$/);
-        return {
-            protoId: parsedRef[1],
-            interfaceId: parsedRef[3] || null
-        };
-    };
-
-    /**
-     * Logs a warning message
-     * @param message
-     */
-    var warn = function(message) {
-        if(typeof console != "undefined" && console.warn) {
-            console.warn(message);
+            throw new Error("No interface is defined for [" + id + "]");
         }
     };
 

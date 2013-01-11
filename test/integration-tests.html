@@ -18,6 +18,7 @@
         baseUrl: "resources/amd",
         paths: {
             "jquery" : "https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min",
+            "inverted/Util" : "../../../src/inverted/Util",
             "inverted/Promise" : "../../../src/inverted/Promise",
             "inverted/AppContext" : "../../../src/inverted/AppContext",
             "inverted/ProtoFactory": "../../../src/inverted/ProtoFactory"
@@ -269,6 +270,25 @@
             start();
         });
     });
+
+        asyncTest("interfacesPass", 0, function() {
+            appContext.getProto("passingInterfaceProto").then(function(util) {
+                start();
+            }, function(e) {
+               fail();
+               start();
+            });
+        });
+
+
+        asyncTest("interfacesFail", 1, function() {
+            appContext.getProto("failingInterfaceProto").then(function(util) {
+                start();
+            }, function(e) {
+                assertTrue(true);
+                start();
+            });
+        });
 /*
     asyncTest("circular", 2, function() {
         appContext.getProto("circular1", function(circular1) {
