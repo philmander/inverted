@@ -14,6 +14,13 @@
 <body>
 <script>
 
+    var TEST_BUILD  = true;
+
+    var invertedModule = "inverted/AppContext";
+    if(TEST_BUILD) {
+        invertedModule = "inverted";
+    }
+
     var amdConfig = {
         baseUrl: "resources/amd",
         paths: {
@@ -21,8 +28,10 @@
             "inverted/Util" : "../../../src/inverted/Util",
             "inverted/Promise" : "../../../src/inverted/Promise",
             "inverted/AppContext" : "../../../src/inverted/AppContext",
-            "inverted/ProtoFactory": "../../../src/inverted/ProtoFactory"
-            //"inverted" : "../../../lib/inverted-min"
+            "inverted/ProtoFactory": "../../../src/inverted/ProtoFactory",
+
+            //test the built version
+            "inverted" : "../../../lib/inverted-min"
         }
     };
 
@@ -34,8 +43,7 @@
         window.require = window.curl;
     }
 
-    require(["inverted/AppContext", "app-config"], function(AppContext, conf) {
-    //require(["inverted", "app-config"], function(AppContext, conf) {
+    require([invertedModule, "app-config"], function(AppContext, conf) {
 
 	var appContext = AppContext.create(conf);
     
