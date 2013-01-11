@@ -13,9 +13,9 @@
 	<property name="support.dir" value="${basedir}/support" />
     <property name="version" value="99" />
 	
-	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${basedir}/support/ant/compiler.jar" />
-    <taskdef name="jshint" classname="com.philmander.jshint.JsHintAntTask" classpath="${basedir}/support/ant/ant-jshint-0.3.3-deps.jar" />
-    <taskdef name="jstest" classname="com.philmander.jstest.ant.JsTestRunnerTask" classpath="${basedir}/support/ant/ant-jstestrunner-0.1-deps.jar" />
+	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${basedir}/support/build/compiler.jar" />
+    <taskdef name="jshint" classname="com.philmander.jshint.JsHintAntTask" classpath="${basedir}/support/build/ant-jshint-0.3.3-deps.jar" />
+    <taskdef name="jstest" classname="com.philmander.jstest.ant.JsTestRunnerTask" classpath="${basedir}/support/build/ant-jstestrunner-0.1-deps.jar" />
 
 	<target name="clean">
 		<echo>Doing clean...for ${build.dir}</echo>
@@ -27,16 +27,13 @@
         <jshint dir="${src.dir}/inverted"
                 globals="define:true,require:true,curl:true, module:true,console:true"
                 options="forin=false,newcap=false"
-                jshintsrc="${support.dir}/jshint-r12.js">
-            <include name="ProtoFactory.js"/>
-            <include name="AppContext.js"/>
-            <report type="plain" destFile="${basedir}/jshint-results.xml" />
+                jshintsrc="${support.dir}/build/jshint-r12.js">
         </jshint>
     </target>
 
     <target name="test" depends="lint">
 
-        <jstest dir="${basedir}/test" includes="**/*.html" phantomWin="${basedir}/support/ant/phantomjs.exe" />
+        <jstest dir="${basedir}/test" includes="**/*.html" phantomWin="${basedir}/support/build/phantomjs.exe" />
 
     </target>
 
@@ -53,6 +50,8 @@
 		<concat destfile="lib/inverted.js" fixlastline="yes">
 			<filelist dir="${temp.dir}">
 				<file name="package/intro.js" />
+                <file name="inverted/Util.js" />
+                <file name="inverted/Promise.js" />
 				<file name="inverted/ProtoFactory.js" />
 				<file name="inverted/AppContext.js" />
                 <file name="package/define.js" />
