@@ -1,5 +1,6 @@
 define(function() {
     return {
+        injectAppContext: true,
         protos: {
             a : {
                 module: "A",
@@ -11,7 +12,8 @@ define(function() {
                 module: "A",
                 args: [
                         "*b2"
-                ]
+                ],
+                injectAppContext: false
             },
             b: {
                 module: "B",

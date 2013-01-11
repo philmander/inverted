@@ -45,8 +45,10 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise"], fu
      */
     AppContext.create = function(config, originalModule) {
 
-        var protoFactory = new ProtoFactory(config.protos);
-        return new AppContext(config, protoFactory, originalModule);
+        var protoFactory = new ProtoFactory(config);
+        var appContext = new AppContext(config, protoFactory, originalModule);
+        protoFactory.appContext = appContext;
+        return appContext
     };
 
     /**

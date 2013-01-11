@@ -14,6 +14,9 @@ define("inverted/ProtoFactory", function() {
     var ProtoFactory = function(config) {
 
         this.config = config;
+        this.appContext = null;
+
+        this.injectAppContext = !!(this.config.injectAppContext === true)
 
         //cache of loaded dependencies
         this.dependencyMap = {};
@@ -56,7 +59,11 @@ define("inverted/ProtoFactory", function() {
         } else if((!protoData.scope || protoData.scope !== "singleton") ||
                 (protoData.scope === "singleton" && !protoData.instance)) {
 
-            instance = this._createInstance(protoData.module, protoData.args, protoData.props, protoData.extendsRef);
+            var injectAppContext =
+                this.injectAppContext === true && protoData.injectAppContext !== false ||
+                this.injectAppContext !== true && protoData.injectAppContext === true;
+
+            instance = this._createInstance(protoData.module, protoData.args, protoData.props, protoData.extendsRef, injectAppContext);
 
             // save instance if singleton
             if(protoData.scope && protoData.scope === "singleton") {
@@ -78,9 +85,10 @@ define("inverted/ProtoFactory", function() {
      * @param argData
      * @param propData
      * @param extendsRef
+     * @param injectAppContext
      * @return
      */
-    ProtoFactory.prototype._createInstance = function(proto, argData, propData, extendsRef) {
+    ProtoFactory.prototype._createInstance = function(proto, argData, propData, extendsRef, injectAppContext) {
 
         var instance = null;
 
@@ -150,6 +158,11 @@ define("inverted/ProtoFactory", function() {
                     }
                 }
             }
+        }
+
+        //create a reference to the app context
+        if(this.appContext && injectAppContext) {
+            instance.__appContext__ = this.appContext;
         }
 
         return instance;
@@ -270,10 +283,10 @@ define("inverted/ProtoFactory", function() {
      */
     ProtoFactory.prototype.getProtoConfig = function(id) {
 
-        var config = this.config;
+        var protos = this.config.protos;
 
-        if(this.config.hasOwnProperty(id)) {
-            return config[id];
+        if(protos.hasOwnProperty(id)) {
+            return protos[id];
         } else {
             throw new Error("No proto is defined for " + id);
         }
