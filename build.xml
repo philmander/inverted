@@ -10,8 +10,8 @@
 	
 	<!-- other dirs -->
 	<property name="temp.dir" value="${basedir}/lib/temp" />
-	<property name="version" value="99" />
-	<property name="lib.dir" value="${basedir}/support" />
+	<property name="support.dir" value="${basedir}/support" />
+    <property name="version" value="99" />
 	
 	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${basedir}/support/ant/compiler.jar" />
     <taskdef name="jshint" classname="com.philmander.jshint.JsHintAntTask" classpath="${basedir}/support/ant/ant-jshint-0.3.3-deps.jar" />
@@ -24,9 +24,13 @@
 	</target>
 
     <target name="lint" depends="clean">
-        <jshint dir="${src.dir}/inverted" globals="define:true,require:true,curl:true, module:true" options="forin=false,newcap=false">
+        <jshint dir="${src.dir}/inverted"
+                globals="define:true,require:true,curl:true, module:true,console:true"
+                options="forin=false,newcap=false"
+                jshintsrc="${support.dir}/jshint-r12.js">
             <include name="ProtoFactory.js"/>
             <include name="AppContext.js"/>
+            <report type="plain" destFile="${basedir}/jshint-results.xml" />
         </jshint>
     </target>
 
