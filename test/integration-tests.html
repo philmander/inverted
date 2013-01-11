@@ -2,12 +2,12 @@
 <html>
 <head>
 <title>Inverted Tests</title>
-<link type="text/css" rel="stylesheet" href="../support/qunit.css">
+<link type="text/css" rel="stylesheet" href="../support/test/qunit.css">
 
-<script src="../support/qunit.js"></script>
-<script src="../support/q2junit.js"></script>
+<script src="../support/test/qunit.js"></script>
+<script src="../support/test/q2junit.js"></script>
 
-<script src="../support/require.js"></script>
+<script src="../support/test/require.js"></script>
 <!--<script src="../lib/curl.js"></script>-->
 
 </head>
@@ -17,7 +17,7 @@
     var amdConfig = {
         baseUrl: "resources/amd",
         paths: {
-            "jquery" : "https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min",
+            "jquery" : "../../../support/test/jquery",
             "inverted/Util" : "../../../src/inverted/Util",
             "inverted/Promise" : "../../../src/inverted/Promise",
             "inverted/AppContext" : "../../../src/inverted/AppContext",
