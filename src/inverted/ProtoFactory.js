@@ -210,13 +210,14 @@ define("inverted/ProtoFactory", function() {
 
                 if((isObject && argData.ref) || (typeof argData === "string" && argData.match(/^\*[^\*]/) !== null)) {
                     // if arg has references another proto
-                    args[i] = this.getProto(argData.ref || argData.substr(1));
+                    var ref = argData.ref || argData.substr(1);
+                    args[i] = this._getProtoFromReference(ref);
                 } else if(isObject && argData.factoryRef) {
                     // if arg uses a factory
                     args[i] = this._getProtoFromFactory(argData.factoryRef, argData.factoryMethod);
                 } else if(isObject && argData.module) {
                     // if arg uses an anonymous proto
-                    args[i] = this._createInstance(argData.module, argData.args, argData.props, null);
+                    args[i] = this._createInstance(argData.module, argData.args, argData.props, null, argData.injectAppContext);
                 } else if(isObject) {
                     args[i] = {};
                     // if arg is object containing values
@@ -226,13 +227,14 @@ define("inverted/ProtoFactory", function() {
 
                             if(obj && (obj.ref || (typeof obj === "string" && obj.match(/^\*[^\*]/) !== null))) {
                                 // if object value is a reference
-                                args[i][key] = this.getProto(obj.ref || obj.substr(1));
+                                var ref = obj.ref || obj.substr(1);
+                                args[i][key] = this._getProtoFromReference(ref);
                             } else if(obj && obj.factoryRef) {
                                 // if object value uses a factory
                                 args[i][key] = this._getProtoFromFactory(obj.factoryRef, obj.factoryMethod);
                             } else if(obj && obj.module) {
                                 // if object value is an anonymous proto
-                                args[i][key] = this._createInstance(obj.module, obj.args, obj.props, null);
+                                args[i][key] = this._createInstance(obj.module, obj.args, obj.props, null, argData.injectAppContext);
                             } else {
                                 //if object value is a literal value
                                 args[i][key] = obj;
@@ -275,6 +277,40 @@ define("inverted/ProtoFactory", function() {
         proto.prototype.constructor = proto;
     };
 
+    ProtoFactory.prototype._getProtoFromReference = function(ref) {
+
+        var depData = Util.parseDependencyRef(ref);
+        var proto = this.getProto(depData.protoId);
+
+        //if an interface id specified, check the implementation
+        if(depData.interfaceId) {
+            self._checkImplements(depData.protoId, proto, depData.interfaceId);
+        }
+        return proto;
+    };
+
+    /**
+     * Warns if a proto instance does not implement any of the methods defined in an interface
+     * @param protoId
+     * @param proto
+     * @param interfaceId
+     */
+    ProtoFactory.prototype._checkImplements = function(protoId, proto, interfaceId) {
+
+        var inter = this.getInterfaceConfig(interfaceId);
+        var methods = inter.split(/(\s+)?,(\s+)?/);
+        var errors = [];
+        for(var i = 0; i < methods.length; i++) {
+            if(typeof inter[methods[i]] !== "function") {
+                errors.push(protoId + " does not implement the method '" + methods[i] + "'");
+            }
+        }
+
+        if(errors.length) {
+            throw new Error(errors.join("\n"));
+        }
+    };
+
     /**
      * Searches the config for a proto matching the specified id
      * 
@@ -285,10 +321,21 @@ define("inverted/ProtoFactory", function() {
 
         var protos = this.config.protos;
 
-        if(protos.hasOwnProperty(id)) {
+        if(protos && protos.hasOwnProperty(id)) {
             return protos[id];
         } else {
             throw new Error("No proto is defined for " + id);
+        }
+    };
+
+    ProtoFactory.prototype.getInterfaceConfig = function(id) {
+
+        var interfaces = this.config.interfaces;
+
+        if(interfaces && interfaces.hasOwnProperty(id)) {
+            return interfaces[id];
+        } else {
+            throw new Error("No interface is defined for " + id);
         }
     };
     
@@ -321,6 +368,30 @@ define("inverted/ProtoFactory", function() {
         }
 
         return -1;
+    };
+
+    /**
+     * Parses the proto id and interface id from a dependency reference string
+     * @param ref
+     * @return {{protoId: *, interfaceId: (*|null)}}
+     */
+    Util.parseDependencyRef = function(ref) {
+
+        var parsedRef = ref.match(/^(.+?)(\[(.+?)\])?$/);
+        return {
+            protoId: parsedRef[1],
+            interfaceId: parsedRef[3] || null
+        };
+    };
+
+    /**
+     * Logs a warning message
+     * @param message
+     */
+    var warn = function(message) {
+        if(typeof console != "undefined" && console.warn) {
+            console.warn(message);
+        }
     };
 
     //expose constructor
