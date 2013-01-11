@@ -100,6 +100,21 @@ define(function() {
                 props: {
                     $: "*jquery"
                 }
+            },
+            circular1: {
+                module: "A",
+                props: {
+                    a: "*circular2"
+                }
+            },
+            circular2: {
+                module: "A",
+                props: {
+                    a: "*circular1"
+                }
+            },
+            x: {
+                module: "X" //shouldn't exist
             }
         }
     };

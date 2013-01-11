@@ -10,7 +10,7 @@
  *    //do stuff
  * }
  */
-define("inverted/AppContext", [ "inverted/ProtoFactory"], function(ProtoFactory) {
+define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise"], function(ProtoFactory, Promise) {
 
     "use strict";
 
@@ -66,6 +66,13 @@ define("inverted/AppContext", [ "inverted/ProtoFactory"], function(ProtoFactory)
         
         var self = this;
 
+        var promise = new Promise();
+
+        //no point in continuing if no loader is present
+        if(!this._loader) {
+            throw new Error("No AMD loader is defined");
+        }
+
         // turn arguments list in to array of proto ids
         var ids = Array.prototype.slice.call(arguments, 0);
 
@@ -78,11 +85,12 @@ define("inverted/AppContext", [ "inverted/ProtoFactory"], function(ProtoFactory)
         // walk config to get array of deps so they can be loaded if required
         var deps = [];
         for( var i = 0; i < ids.length; i++) {
-            deps = deps.concat(this._getDependencies(ids[i]));
-        }
-
-        if(!this._loader) {
-            throw new Error("No AMD _loader is defined");
+            try {
+                deps = deps.concat(this._getDependencies(ids[i]));
+            } catch(e) {
+                warn(e.message);
+                promise.notifyFailure(e);
+            }
         }
 
         // load all dependencies before attempting to create an instance        
@@ -94,17 +102,26 @@ define("inverted/AppContext", [ "inverted/ProtoFactory"], function(ProtoFactory)
                 depMap[deps[i]] = arguments[i];
             }
             self.protoFactory.addDependencies(depMap);
-        
-            var protos = [];
+
+            var protos = [], proto;
             for(i = 0; i < ids.length; i++) {
-                var proto = self.protoFactory.getProto(ids[i]);                            
-                protos.push(proto);
+                try {
+                    proto = self.protoFactory.getProto(ids[i]);
+                    protos.push(proto);
+                } catch(e) {
+                    warn(e.message);
+                    promise.notifyFailure(e);
+                }
             }
 
             if(callback) {
                 callback.apply(self, protos);
             }
+
+            promise.notifySuccess(protos);
         });
+
+        return promise;
     };
 
     /**
@@ -206,6 +223,16 @@ define("inverted/AppContext", [ "inverted/ProtoFactory"], function(ProtoFactory)
         });
 
         callback.apply(this, loaded);
+    };
+
+    /**
+     * Logs a warning message
+     * @param message
+     */
+    var warn = function(message) {
+        if(typeof console != "undefined" && console.warn) {
+            console.warn(message);
+        }
     };
 
     //export AppContext
