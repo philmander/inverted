@@ -3,6 +3,8 @@
  */
 define("inverted/Util", function() {
 
+    "use strict";
+
     var Util = {};
 
     /**

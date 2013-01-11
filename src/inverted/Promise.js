@@ -3,6 +3,8 @@
  */
 define("inverted/Promise", function() {
 
+    "use strict";
+
     var Promise = function(ctx) {
         this._ctx = ctx;
         this._sucesses = [];
@@ -11,10 +13,10 @@ define("inverted/Promise", function() {
 
     Promise.prototype.then = function(success, fail) {
 
-        if(typeof success == "function") {
+        if(typeof success === "function") {
             this._sucesses.push(success);
         }
-        if(typeof fail == "function") {
+        if(typeof fail === "function") {
             this._failures.push(fail);
         }
     };

@@ -49,7 +49,7 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
         var protoFactory = new ProtoFactory(config);
         var appContext = new AppContext(config, protoFactory, originalModule);
         protoFactory.appContext = appContext;
-        return appContext
+        return appContext;
     };
 
     /**
@@ -237,7 +237,7 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
      * @param message
      */
     var warn = function(message) {
-        if(typeof console != "undefined" && console.warn) {
+        if(typeof console !== "undefined" && console.warn) {
             console.warn(message);
         }
     };

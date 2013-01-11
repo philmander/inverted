@@ -16,7 +16,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
         this.config = config;
         this.appContext = null;
 
-        this.injectAppContext = !!(this.config.injectAppContext === true)
+        this.injectAppContext = this.config.injectAppContext === true ? true : false;
 
         //cache of loaded dependencies
         this.dependencyMap = {};
@@ -330,7 +330,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
     ProtoFactory.prototype.getInterfaceConfig = function(id) {
 
         var interfaces = this.config.interfaces;
-        id = Util.trim(id)
+        id = Util.trim(id);
         if(interfaces && interfaces.hasOwnProperty(id)) {
             return interfaces[id];
         } else {
