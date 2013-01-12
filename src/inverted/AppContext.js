@@ -29,11 +29,15 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
         this.protoFactory = protoFactory;
         this.originalModule = originalModule || module;
 
-        if(define.amd && typeof requirejs !== "undefined") {
-           this._loader = require;
-        } else if(define.amd && typeof curl !== "undefined") {
-            this._loader = curl;
+        if(define.amd) {
+            //pick an amd loader
+            if(typeof requirejs !== "undefined") {
+                this._loader = require;
+            } else if(typeof curl !== "undefined") {
+                this._loader = curl;
+            }
         } else {
+            //use common js for Node
             this._loader = this._commonRequire;
         }
     };

@@ -145,8 +145,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
             instance = new proto(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
             break;
         case 10:
-            instance = new proto(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8],
-                    args[9]);
+            instance = new proto(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
             break;
         default:
             throw Util.createError("Could not instantiate proto. Instances have a 10 arg limit");
@@ -275,7 +274,6 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
      * Extends one proto with another
      * @param {Object} proto The proto to extend
      * @param {Object} superProto The base proto
-     * @return {Object}
      */
     ProtoFactory.prototype._extendProto = function(proto, superProto) {
 
