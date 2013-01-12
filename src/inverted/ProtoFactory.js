@@ -292,14 +292,14 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
      */
     ProtoFactory.prototype._checkImplements = function(protoId, obj, interfaces) {
 
-        var i, j, currentInterface, methods, errors;
+        var i, j, currentInterface, method, errors;
         for(i = 0; i < interfaces.length; i++) {
             currentInterface = this.getInterfaceConfig(interfaces[i]);
-            methods = Util.splitCommaDelimited(currentInterface);
             errors = [];
-            for(j = 0; j < methods.length; j++) {
-                if(typeof obj[methods[j]] !== "function") {
-                    errors.push(protoId + " does not implement the method '" + methods[j] + "'");
+            for(j = 0; j < currentInterface.length; j++) {
+                method = Util.trim(currentInterface[j]);
+                if(typeof obj[method] !== "function") {
+                    errors.push(protoId + " does not implement the method '" + method + "'");
                 }
             }
 

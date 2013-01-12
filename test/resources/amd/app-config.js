@@ -138,10 +138,10 @@ define(function() {
             }
         },
         interfaces: {
-            //spacing is important between method names to test the splitting regex
-            typeUtil: "isNumber, isFunction , isArray",
-            numberUtil: "isNumber",
-            animalUtil: "isJellyfish,isTiger"
+            //spacing is to test trim
+            typeUtil: ["isNumber", " isFunction " , "isArray"],
+            numberUtil: ["isNumber"],
+            animalUtil: ["isJellyfish  ", "  isTiger"]
         }
     };
 });
