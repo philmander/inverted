@@ -99,7 +99,7 @@ Official releases can be found as tags.
 ##Changelog
 
 ###v0.2.0
-* __BREAKING CHANGE__ AppContext#getProto interface has changed. The list of proto id's must be now specified as an array in the first argument. 
+* __BREAKING CHANGE__ AppContext#getProto interface has changed. More than one proto id's must be now specified as an array of strings in the first argument. A single proto id may remain as a string 
 * Added support for mixin dependecies (issue #6)
 * Added support for interfaces (issue #3)
 * AppContext#getProto now returns a promise with success and failure callbacks (issue #4)
