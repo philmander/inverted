@@ -85,5 +85,15 @@ define("inverted/Util", function() {
         return [];
     };
 
+    /**
+     * Logs a warning message
+     * @param message
+     */
+    Util.warn = function(message) {
+        if(typeof console !== "undefined" && console.warn) {
+            console.warn(message);
+        }
+    };
+
     return Util;
 });

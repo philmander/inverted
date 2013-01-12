@@ -66,7 +66,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
                 this.injectAppContext !== true && protoConf.injectAppContext === true;
 
             instance = this._createInstance(protoConf.module, protoConf.args, protoConf.props, protoConf.extendsRef,
-                                            injectAppContext, protoData.interfaces);
+                                            protoConf.mixin, injectAppContext, protoData.interfaces);
 
             // save instance if singleton
             if(protoConf.scope && protoConf.scope === "singleton") {
@@ -84,15 +84,16 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
     /**
      * Uses factory config to create a new instance
      *
-     * @param protoId {String|Object} this might be a string or an proto
-     * @param argData
-     * @param propData
-     * @param extendsRef
-     * @param injectAppContext
-     * @param interfaces
-     * @return
+     * @param {String} protoId {String|Object} this might be a string or an proto
+     * @param {Array} argData
+     * @param {Object} propData
+     * @param {String} extendsRef
+     * @param {Object} mixin
+     * @param {Boolean} injectAppContext
+     * @param {Array} interfaces
+     * @return {Object}
      */
-    ProtoFactory.prototype._createInstance = function(protoId, argData, propData, extendsRef, injectAppContext, interfaces) {
+    ProtoFactory.prototype._createInstance = function(protoId, argData, propData, extendsRef, mixin, injectAppContext, interfaces) {
 
         var instance = null;
         var proto = this.dependencyMap[protoId];
@@ -158,12 +159,20 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
                     var propertyArgs = this._createArgs([ propData[propName] ]);
 
                     if(typeof instance[propName] === "function") {
-                        instance[propName].call(instance, propertyArgs[0]);
+                        propertyArgs[0] = Util.isArray(propertyArgs[0]) ? propertyArgs[0] : [ propertyArgs[0] ];
+                        //TODO: what if we actually want to inject an array as the first argument?
+                        instance[propName].apply(instance, propertyArgs[0]);
                     } else {
                         instance[propName] = propertyArgs[0];
                     }
                 }
             }
+        }
+
+        // mixins {
+        if(mixin && mixin.ref) {
+            mixin.override = typeof mixin.override === "boolean" ? mixin.override : true;
+            this._mixin(instance, this.getProto(mixin.ref), mixin.ref, mixin.override);
         }
 
         //create a reference to the app context
@@ -224,7 +233,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
                     args[i] = this._getProtoFromFactory(argData.factoryRef, argData.factoryMethod);
                 } else if(isObject && argData.module) {
                     // if arg uses an anonymous proto
-                    args[i] = this._createInstance(argData.module, argData.args, argData.props, null, argData.injectAppContext, null);
+                    args[i] = this._createInstance(argData.module, argData.args, argData.props, argData.extendsRef, argData.mixin,  argData.injectAppContext, null);
                 } else if(isObject) {
                     args[i] = {};
                     // if arg is object containing values
@@ -241,7 +250,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
                                 args[i][key] = this._getProtoFromFactory(obj.factoryRef, obj.factoryMethod);
                             } else if(obj && obj.module) {
                                 // if object value is an anonymous proto
-                                args[i][key] = this._createInstance(obj.module, obj.args, obj.props, null, argData.injectAppContext, null);
+                                args[i][key] = this._createInstance(obj.module, obj.args, obj.props, obj.extendsRef, obj.mixin, argData.injectAppContext, null);
                             } else {
                                 //if object value is a literal value
                                 args[i][key] = obj;
@@ -282,6 +291,29 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
 
         // fix the contructor
         proto.prototype.constructor = proto;
+    };
+
+    /**
+     * Inverted mixin function. Injects the object mixWith as a property of toMix, using the convention: __protoID__
+     * Methods which mirror mixWith and delegate to the injected object are then added to toMix
+     * @param mixedProto
+     * @param protoToMix
+     * @param toMixId
+     * @param override
+     * @private
+     */
+    ProtoFactory.prototype._mixin = function(mixedProto, protoToMix, toMixId, override) {
+
+        for(var fn in protoToMix) {
+            if(typeof protoToMix[fn] === "function" && (!(fn in mixedProto) || (fn in mixedProto && override))) {
+                (function(fn) {
+                    mixedProto[fn] = function() {
+                        return protoToMix[fn].apply(protoToMix, arguments);
+                    };
+                })(fn);
+            }
+        }
+        mixedProto["__" + toMixId + "__"] = protoToMix;
     };
 
     /**

@@ -91,7 +91,7 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
             try {
                 deps = deps.concat(this._getDependencies(ids[i]));
             } catch(e) {
-                warn(e.message);
+                Util.warn(e);
                 promise.notifyFailure(e);
             }
         }
@@ -112,7 +112,7 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
                     proto = self.protoFactory.getProto(ids[i]);
                     protos.push(proto);
                 } catch(e) {
-                    warn(e.message);
+                    Util.warn(e);
                     promise.notifyFailure(e);
                 }
             }
@@ -137,26 +137,31 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
     AppContext.prototype._getDependencies = function(id, deps) {
 
         deps = deps || [];
-        var protoData = this.protoFactory.getProtoConfig(id);
+        var protoConfig = this.protoFactory.getProtoConfig(id);
 
-        deps.push(protoData.module);
+        deps.push(protoConfig.module);
 
         // inheritance
-        if(protoData.extendsRef) {
-            var extendsRef = Util.parseProtoReference(protoData.extendsRef).protoId;
+        if(protoConfig.extendsRef) {
+            var extendsRef = Util.parseProtoReference(protoConfig.extendsRef).protoId;
             deps = this._getDependencies(extendsRef, deps);
         }
 
-        if(protoData.args) {
-            deps = this._getDependenciesFromArgs(protoData.args, deps);
+        if(protoConfig.args) {
+            deps = this._getDependenciesFromArgs(protoConfig.args, deps);
         }
 
-        if(protoData.props) {
-            for( var propName in protoData.props) {
-                if(protoData.props.hasOwnProperty(propName)) {
-                    deps = this._getDependenciesFromArgs([ protoData.props[propName] ], deps);
+        if(protoConfig.props) {
+            for( var propName in protoConfig.props) {
+                if(protoConfig.props.hasOwnProperty(propName)) {
+                    deps = this._getDependenciesFromArgs([ protoConfig.props[propName] ], deps);
                 }
             }
+        }
+
+        if(protoConfig.mixin && protoConfig.mixin.ref) {
+            var mixinRef = Util.parseProtoReference(protoConfig.mixin.ref).protoId;
+            deps = this._getDependencies(mixinRef, deps);
         }
 
         return deps;
@@ -230,16 +235,6 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
         });
 
         callback.apply(this, loaded);
-    };
-
-    /**
-     * Logs a warning message
-     * @param message
-     */
-    var warn = function(message) {
-        if(typeof console !== "undefined" && console.warn) {
-            console.warn(message);
-        }
     };
 
     //export AppContext

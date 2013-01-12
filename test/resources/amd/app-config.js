@@ -135,6 +135,25 @@ define(function() {
                 props: {
                     util: "*anotherUtil [ numberUtil, animalUtil ]"
                 }
+            },
+            mixinMixed: {
+                module: "MixinMixed",
+                args: [ "A", "B", "C", "O" ],
+                mixin: {
+                    ref: "mixinToMix"
+                }
+            },
+            mixinMixedWithoutOverride: {
+                module: "MixinMixed",
+                args: [ "A", "B", "C", "O" ],
+                mixin: {
+                    ref: "mixinToMix",
+                    override: false
+                }
+            },
+            mixinToMix: {
+                module: "MixinToMix",
+                args: [ "X", "Y", "Z", "Override" ]
             }
         },
         interfaces: {

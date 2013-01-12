@@ -14,7 +14,7 @@
 <body>
 <script>
 
-    var TEST_BUILD  = true;
+    var TEST_BUILD  = false;
 
     var amdConfig = {}, invertedModule;
     amdConfig.baseUrl = "resources/amd";
@@ -297,6 +297,44 @@
             }, function(e) {
                 assertTrue(true);
                 start();
+            });
+        });
+
+        asyncTest("mixinWithOverride", function() {
+            appContext.getProto("mixinMixed", function(mixinMixed) {
+                require(["MixinToMix"], function(MixinToMix) {
+
+                    assertInstanceOf(MixinToMix, mixinMixed.__mixinToMix__);
+
+                    assertEquals(mixinMixed.getA(), "A");
+                    assertEquals(mixinMixed.getB(), "B");
+                    assertEquals(mixinMixed.getC(), "C");
+                    assertEquals(mixinMixed.getX(), "X");
+                    assertEquals(mixinMixed.getY(), "Y");
+                    assertEquals(mixinMixed.getZ(), "Z");
+                    assertEquals(mixinMixed.getO(), "Override");
+
+                    start();
+                });
+            });
+        })
+
+        asyncTest("mixinWithoutOverride", function() {
+            appContext.getProto("mixinMixedWithoutOverride", function(mixinMixed) {
+                require(["MixinToMix"], function(MixinToMix) {
+
+                    assertInstanceOf(MixinToMix, mixinMixed.__mixinToMix__);
+
+                    assertEquals(mixinMixed.getA(), "A");
+                    assertEquals(mixinMixed.getB(), "B");
+                    assertEquals(mixinMixed.getC(), "C");
+                    assertEquals(mixinMixed.getX(), "X");
+                    assertEquals(mixinMixed.getY(), "Y");
+                    assertEquals(mixinMixed.getZ(), "Z");
+                    assertEquals(mixinMixed.getO(), "O");
+
+                    start();
+                });
             });
         });
 /*
