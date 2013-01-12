@@ -1,5 +1,5 @@
 /**
- * Misc Utils
+ * Misc functions shared throughout the Inverted codebase
  */
 define("inverted/Util", function() {
 
@@ -87,12 +87,34 @@ define("inverted/Util", function() {
 
     /**
      * Logs a warning message
-     * @param message
+     * @param e
      */
-    Util.warn = function(message) {
+    Util.warn = function(e) {
         if(typeof console !== "undefined" && console.warn) {
-            console.warn(message);
+            if(e instanceof Error) {
+                console.warn(e.message);
+            } else {
+                console.warn(e);
+            }
         }
+    };
+
+    Util.createError = function(message) {
+        return new Util.InvertedError(message);
+    };
+
+    /**
+     * Custom error type for specific Inverted errors
+     * @param message
+     * @constructor
+     */
+    Util.InvertedError = function(message) {
+        this.message = message;
+    };
+    Util.InvertedError.prototype = Error.prototype;
+
+    Util.InvertedError.prototype.print = function() {
+        Util.warn(this.message);
     };
 
     return Util;

@@ -139,21 +139,28 @@ define(function() {
             mixinMixed: {
                 module: "MixinMixed",
                 args: [ "A", "B", "C", "O" ],
-                mixin: {
-                    ref: "mixinToMix"
-                }
+                mixin:[
+                    "mixinToMixOne",
+                    {
+                        ref: "mixinToMixTwo",
+                    }
+                ]
             },
             mixinMixedWithoutOverride: {
                 module: "MixinMixed",
                 args: [ "A", "B", "C", "O" ],
-                mixin: {
-                    ref: "mixinToMix",
+                mixin: [{
+                    ref: "mixinToMixTwo",
                     override: false
-                }
+                }]
             },
-            mixinToMix: {
-                module: "MixinToMix",
-                args: [ "X", "Y", "Z", "Override" ]
+            mixinToMixOne: {
+                module: "MixinToMixOne",
+                args: [ "X", "Y", "Z", "Override1" ]
+            },
+            mixinToMixTwo: {
+                module: "MixinToMixTwo",
+                args: [ "K", "L", "M", "Override2" ]
             }
         },
         interfaces: {

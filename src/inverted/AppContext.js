@@ -65,7 +65,7 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
      * Gets a proto using the proto id to create it using the application config
      * Takes a variable list of proto ids as arguments, the final argument must be a callback function
      */
-    AppContext.prototype.getProto = function() {
+    AppContext.prototype.getProto = function(protoIds, onSuccess, onError) {
         
         var self = this;
 
@@ -76,23 +76,21 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
             throw new Error("No AMD loader is defined");
         }
 
-        // turn arguments list in to array of proto ids
-        var ids = Array.prototype.slice.call(arguments, 0);
-
-        // last arg should be the callback
-        var callback;
-        if(ids.length > 1 && typeof ids[ids.length - 1] === "function") {
-            callback = ids.pop();
+        //TODO: remove this eventually
+        if(!Util.isArray(protoIds)) {
+            var m = "Inverted's interface has changed. Please now pass proto ID's as an array in a single argument\n" +
+                    "\tgetProto([\"one\", \"two\",\"three\"], onSuccess, onError);";
+            throw Util.createError(m);
         }
 
+        var invertedErrors = [];
         // walk config to get array of deps so they can be loaded if required
         var deps = [];
-        for( var i = 0; i < ids.length; i++) {
+        for( var i = 0; i < protoIds.length; i++) {
             try {
-                deps = deps.concat(this._getDependencies(ids[i]));
+                deps = deps.concat(this._getDependencies(protoIds[i]));
             } catch(e) {
-                Util.warn(e);
-                promise.notifyFailure(e);
+                invertedErrors.push(e);
             }
         }
 
@@ -107,20 +105,35 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
             self.protoFactory.addDependencies(depMap);
 
             var protos = [], proto;
-            for(i = 0; i < ids.length; i++) {
+            for(i = 0; i < protoIds.length; i++) {
                 try {
-                    proto = self.protoFactory.getProto(ids[i]);
+                    proto = self.protoFactory.getProto(protoIds[i]);
                     protos.push(proto);
                 } catch(e) {
-                    Util.warn(e);
-                    promise.notifyFailure(e);
+                    invertedErrors.push(e);
                 }
             }
 
-            if(callback) {
-                callback.apply(self, protos);
+            //notify errors
+            for(i = 0; i < invertedErrors.length; i++) {
+                var e = invertedErrors[i];
+                if(e instanceof Util.InvertedError) {
+                    //execute inverted errors in the callback
+                    if(typeof onError === "function") {
+                        onError.call(self, e);
+                    }
+                    promise.notifyFailure(e);
+                    e.print();
+                } else {
+                    //throw all others
+                    throw e;
+                }
             }
 
+            //notify success
+            if(typeof onSuccess === "function") {
+                onSuccess.apply(self, protos);
+            }
             promise.notifySuccess(protos);
         });
 
@@ -147,10 +160,12 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
             deps = this._getDependencies(extendsRef, deps);
         }
 
+        //args
         if(protoConfig.args) {
             deps = this._getDependenciesFromArgs(protoConfig.args, deps);
         }
 
+        //props
         if(protoConfig.props) {
             for( var propName in protoConfig.props) {
                 if(protoConfig.props.hasOwnProperty(propName)) {
@@ -159,9 +174,15 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
             }
         }
 
-        if(protoConfig.mixin && protoConfig.mixin.ref) {
-            var mixinRef = Util.parseProtoReference(protoConfig.mixin.ref).protoId;
-            deps = this._getDependencies(mixinRef, deps);
+        //mixins
+        if(protoConfig.mixin && protoConfig.mixin.length) {
+            var i, len = protoConfig.mixin.length, currentMixin, mixinRef;
+            for(i = 0; i < len; i++) {
+                currentMixin = protoConfig.mixin[i];
+                mixinRef = typeof currentMixin === "string" ? currentMixin : currentMixin.ref;
+                mixinRef = Util.parseProtoReference(mixinRef).protoId;
+                deps = this._getDependencies(mixinRef, deps);
+            }
         }
 
         return deps;

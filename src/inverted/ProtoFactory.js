@@ -149,7 +149,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
                     args[9]);
             break;
         default:
-            throw new Error("Instances have 10 arg limit");
+            throw Util.createError("Could not instantiate proto. Instances have a 10 arg limit");
         }
 
         // property injection
@@ -170,9 +170,14 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
         }
 
         // mixins {
-        if(mixin && mixin.ref) {
-            mixin.override = typeof mixin.override === "boolean" ? mixin.override : true;
-            this._mixin(instance, this.getProto(mixin.ref), mixin.ref, mixin.override);
+        if(mixin && mixin.length) {
+            var i, len = mixin.length, currentMixin, mixinRef, override;
+            for(i = 0; i < len; i++) {
+                currentMixin = mixin[i];
+                mixinRef = typeof currentMixin === "string" ? currentMixin : currentMixin.ref;
+                override = typeof currentMixin.override === "boolean" ? currentMixin.override : true;
+                this._mixin(instance, this.getProto(mixinRef), mixinRef, override);
+            }
         }
 
         //create a reference to the app context
@@ -197,7 +202,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
         if(factoryMethod) {
             return factory[factoryMethod].apply(factory);
         } else {
-            throw new Error("No factory method defined with " + factoryRef);
+            throw Util.createError("No factory method defined with " + factoryRef);
         }
     };
 
@@ -336,7 +341,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
             }
 
             if(errors.length) {
-                throw new Error("Interface [ " + interfaces[i] + "] not implemented: \n\t" + errors.join("\n\t"));
+                throw Util.createError("Interface [ " + interfaces[i] + "] not implemented: \n\t" + errors.join("\n\t"));
 
             }
         }
@@ -355,7 +360,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
         if(protos && protos.hasOwnProperty(id)) {
             return protos[id];
         } else {
-            throw new Error("No proto is defined for [" + id + "]");
+            throw Util.createError("No proto is defined for [" + id + "]");
         }
     };
 
@@ -366,7 +371,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
         if(interfaces && interfaces.hasOwnProperty(id)) {
             return interfaces[id];
         } else {
-            throw new Error("No interface is defined for [" + id + "]");
+            throw Util.createError("No interface is defined for [" + id + "]");
         }
     };
 
