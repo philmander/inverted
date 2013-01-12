@@ -152,7 +152,7 @@
         });
     });
 
-    asyncTest("simplePropertyInjectLiterals", 5, function() {
+    asyncTest("simplePropertyInjectLiterals", 8, function() {
 
 		appContext.getProto("d", function(d) {
 
@@ -161,6 +161,10 @@
 			assertSame(d.bool, false);
 			assertNull(d.nully);
             assertSame(d.fromMethod, "set");
+            assertSame(d.fromMethod2, "one");
+            assertSame(d.fromMethod3, "two");
+            assertArrayEquals(d.fromMethodArray, ["one", "two"]);
+
 
             start();
 		});

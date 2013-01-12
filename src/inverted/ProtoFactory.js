@@ -226,7 +226,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
                     continue;
                 }
 
-                var isObject = typeof argData === "object";
+                var isObject = typeof argData === "object" && !Util.isArray(argData);
 
                 if((isObject && argData.ref) || Util.matchProtoRefString(argData)) {
                     // if arg has references another proto

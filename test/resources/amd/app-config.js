@@ -56,7 +56,9 @@ define(function() {
                     bool : false,
                     nully : null,
                     b: "*b2",
-                    setter: "set"
+                    setter: "set",
+                    setMultiArgs: [ "one" , "two" ],
+                    setArray: [ [ "one", "two"] ]
                 }
             },
             d2: {
