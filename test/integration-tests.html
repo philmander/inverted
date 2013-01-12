@@ -58,7 +58,7 @@
 
      asyncTest("simpleInstance", 1, function() {
 
-    	appContext.getProto(["a"], function(a) {
+    	appContext.getProto("a", function(a) {
     		require(["A"], function(A) {
 
     			assertInstanceOf(A, a);
@@ -98,7 +98,7 @@
 
     asyncTest("simpleConstructorInjectLiterals", 4, function() {
 
-		appContext.getProto(["c"], function(c) {
+		appContext.getProto("c", function(c) {
 
 			assertSame(c.str, "String");
 			assertSame(c.number, 99);
@@ -154,7 +154,7 @@
 
     asyncTest("simplePropertyInjectLiterals", 5, function() {
 
-		appContext.getProto(["d"], function(d) {
+		appContext.getProto("d", function(d) {
 
 			assertSame(d.str, "hi");
 			assertSame(d.number, 88);
@@ -168,7 +168,7 @@
 
     asyncTest("simplePropertyInjectDependency", 7, function() {
 
-		appContext.getProto(["d"], function(d) {
+		appContext.getProto("d", function(d) {
          	         	
          	require(["A", "B", "C", "D" ], function(A, B, C, D) {
     			
@@ -230,7 +230,7 @@
 
     asyncTest("inheritance", 5, function() {
 
-		appContext.getProto(["d4"], function(d4) {
+		appContext.getProto("d4", function(d4) {
 	
 			require(["A", "D"], function(A, D) {
 
@@ -250,7 +250,7 @@
 
     asyncTest("factoryMethod", 1, function() {
 
-		appContext.getProto(["c2"], function(c2) {
+		appContext.getProto("c2", function(c2) {
 			
 			assertEquals(c2.number, 12345);
             start();
@@ -259,7 +259,7 @@
 
     asyncTest("utilsInject", 1, function() {
 
-        appContext.getProto(["b3"], function(b3) {
+        appContext.getProto("b3", function(b3) {
 
             assertTrue(b3.useUtil());
 
@@ -268,7 +268,7 @@
 	});
 
     asyncTest("jquery", 2, function() {
-        appContext.getProto(["f"], function(f) {
+        appContext.getProto("f", function(f) {
 
             assertTrue(f.isNumber(999));
             assertFalse(f.isNumber("NaN"));
@@ -288,7 +288,7 @@
     });
 
         asyncTest("interfacesPass", 0, function() {
-            appContext.getProto(["passingInterfaceProto"]).then(function(util) {
+            appContext.getProto("passingInterfaceProto").then(function(util) {
                 start();
             }, function(e) {
                 fail();
@@ -298,7 +298,7 @@
 
 
         asyncTest("interfacesFail", 1, function() {
-            appContext.getProto(["failingInterfaceProto"]).then(function(util) {
+            appContext.getProto("failingInterfaceProto").then(function(util) {
                 start();
             }, function(e) {
                 intentionalErrors++;
@@ -308,7 +308,7 @@
         });
 
         asyncTest("multiMixinWithOverride", 12, function() {
-            appContext.getProto(["mixinMixed"], function(mixinMixed) {
+            appContext.getProto("mixinMixed", function(mixinMixed) {
                 require(["MixinToMixOne", "MixinToMixTwo"], function(MixinToMixOne, MixinToMixTwo) {
 
                     assertInstanceOf(MixinToMixOne, mixinMixed.__mixinToMixOne__);
@@ -337,7 +337,7 @@
         })
 
         asyncTest("mixinWithoutOverride", 8, function() {
-            appContext.getProto(["mixinMixedWithoutOverride"], function(mixinMixed) {
+            appContext.getProto("mixinMixedWithoutOverride", function(mixinMixed) {
                 require(["MixinToMixTwo"], function(MixinToMix) {
 
                     assertInstanceOf(MixinToMix, mixinMixed.__mixinToMixTwo__);

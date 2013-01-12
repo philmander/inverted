@@ -64,6 +64,9 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
     /**
      * Gets a proto using the proto id to create it using the application config
      * Takes a variable list of proto ids as arguments, the final argument must be a callback function
+     * @param {Array} protoIds
+     * @param {Function} onSuccess
+     * @param {Function} onError
      */
     AppContext.prototype.getProto = function(protoIds, onSuccess, onError) {
         
@@ -77,10 +80,15 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
         }
 
         //TODO: remove this eventually
-        if(!Util.isArray(protoIds)) {
+        if(typeof onSuccess === "string") {
             var m = "Inverted's interface has changed. Please now pass proto ID's as an array in a single argument\n" +
                     "\tgetProto([\"one\", \"two\",\"three\"], onSuccess, onError);";
             throw Util.createError(m);
+        }
+
+        //convert single proto id to array
+        if(typeof protoIds === "string") {
+            protoIds = [ protoIds ];
         }
 
         var invertedErrors = [];
