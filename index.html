@@ -209,6 +209,23 @@
         <script src="https://gist.github.com/4422682.js"></script>
     </div>
 
+    <h3>Mixins</h3>
+
+    <p><em>This is an experimental feature, please create a <a href="https://github.com/philmander/inverted/issues/new">Github issue</a> with the 'feedback' label if you have any feedback.</em></p>
+
+    <p>Inverted <a href="http://en.wikipedia.org/wiki/Mixin">Mixins</a> can effectively create an inheritance chain via
+    composition. The proto to mix is is instantiated
+    and added as a property of the proto instance is to be mixed with. Inverted then decorated the proto with delegating
+    methods.</p>
+
+    <p>You may choose whether methods which already exist on the proto to be mixed should be overriden, this setting
+    defaults to true. If you set it to false, the method may still be accessed via <code>instance.__protoId__.method()</code>.</p>
+
+    <div class="clearfix gist-group">
+        <script src="https://gist.github.com/4519568.js"></script>
+    </div>
+
+
     <h3>Accessing the app context</h3>
 
     <p><em>This is an experimental feature, please create a <a href="https://github.com/philmander/inverted/issues/new">Github issue</a> with the 'feedback' label if you have any feedback.</em></p>
@@ -228,7 +245,7 @@
     <p>Inverted provides the ability to define interfaces, a contract which defines what methods a instance of a
     'class' must have. The interface is not bound to the implementation though, like Java, but to to the relationship
     between a proto and its dependency.<p>
-    <p>Interfaces are defined as a comma delimited string of method names at the root level of the application config and dependency
+    <p>Interfaces are defined as an array of method names at the root level of the application config and dependency
     references can reference one or more interface ID's by enclosing the interface(s) in square brackets.</p>
     <p>If a dependency does not fully implement an interface, Inverted will throw an error and not build the dependency tree for that
     proto. The error can be handled in the failure callback of the promise returned by <a href="#getProto">AppContext#getProto</a></p>
@@ -239,7 +256,7 @@
 <section id="api">
     <h2>API</h2>
 
-    <h3><i>AppContext</i> Inverted#create(Object applicationConfiguration, [Object originalCommonJsModule])</h3>
+    <h3><code><i>AppContext</i> Inverted#create(Object applicationConfiguration, [Object originalCommonJsModule])</code></h3>
 
     <p>Creates an instance of an Inverted <i>AppContext</i> using the given application configuration
         object.</p>
@@ -247,22 +264,24 @@
     <p>Inverted uses the <i>originalCommonJsModule</i> parameter for loading modules on the correct path in Common JS
         environments such as Node.</p>
 
-    <h3 id="getProto"><i>Object</i>InvertedPromise AppContext#getProto(String protoId, String protoId..., Function callback(Object proto, Object proto...)</h3>
+    <h3 id="getProto"><code><i>Object</i> InvertedPromise AppContext#getProto(String|Array protoIds, Function completeCallback(Object proto, Object proto...), Function errorCallback(Error error))</code></h3>
 
     <p>Gets a proto object, which maybe an instance of a class, if prototype or singleton scopes are used, or a direct
         referencing to a Javascript object, function
         or literal value if static scope is used.</p>
 
-    <p>Pass a callback function as the final argument to evaluate the result or use the returned <a href="#invertedPromise">promise</a>.</p>
+    <p>If the first argument is a string, a single proto id is expected. If it is an array, a list of proto IDs are expected.</p>
 
-    <h3 id="apiLoader">AppContext#loader(Function loaderFn)</h3>
+    <p>Pass a callback function as the second argument to evaluate the result or use the returned <a href="#invertedPromise">promise</a>.</p>
+
+    <h3 id="apiLoader"><code>AppContext#loader(Function loaderFn)</code></h3>
 
     <p>Inverted will first try to determine the AMD implementations Require JS or Curl ar present, otherwise it will
         default to using a Common JS module loader.</p>
 
     <p>If you wish to use another module loading mechanism use this method to pass a reference to a loader function.</p>
 
-    <h3 id="invertedPromise">InvertedPromise#then(successCallback(Object proto, Object proto...), [failureCallback(Error error)])</h3>
+    <h3 id="invertedPromise"><code>InvertedPromise#then(successCallback(Object proto, Object proto...), [failureCallback(Error error)])</code></h3>
     Calling AppContext#getProto will return a promise which can be used to evaluate success and failure results.
 
     <h3>Application Config reference</h3>
