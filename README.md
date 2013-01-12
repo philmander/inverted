@@ -33,10 +33,10 @@ requirejs.config({
   }
 });
   
-require("inverted", "app-config", function(inverted, appConfig) {
+require(["inverted", "app-config"], function(inverted, appConfig) {
   
   var appContext = inverted.create(appConfig);
-  appContext.getProto("protoId", function(obj){
+  appContext.getProto(["protoId"], function(obj){
     obj.doStuff();
   });
 });
@@ -99,6 +99,10 @@ Official releases can be found as tags.
 ##Changelog
 
 ###v0.2.0
-* Added support for interfaces (#3)
-* AppContext#getProto now returns a promise with success and failure callbacks (#4)
+* __BREAKING CHANGE__ AppContext#getProto interface has changed. The list of proto id's must be now specified as an array in the first argument. 
+* Added support for mixin dependecies (issue #6)
+* Added support for interfaces (issue #3)
+* AppContext#getProto now returns a promise with success and failure callbacks (issue #4)
+* Improved error handling
 * App config now has the option to inject the app context into a proto (#2)
+
