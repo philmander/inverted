@@ -238,7 +238,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
                     args[i] = this._getProtoFromFactory(argData.factoryRef, argData.factoryMethod);
                 } else if(isObject && argData.module) {
                     // if arg uses an anonymous proto
-                    args[i] = this._createInstance(argData.module, argData.args, argData.props, argData.extendsRef, argData.mixin,  argData.injectAppContext, null);
+                    args[i] = this._createInstance(argData.module, argData.args, argData.props, argData.extendsRef, argData.mixin,  argData.injectAppContext, argData.interfaces);
                 } else if(isObject) {
                     args[i] = {};
                     // if arg is object containing values
@@ -255,7 +255,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
                                 args[i][key] = this._getProtoFromFactory(obj.factoryRef, obj.factoryMethod);
                             } else if(obj && obj.module) {
                                 // if object value is an anonymous proto
-                                args[i][key] = this._createInstance(obj.module, obj.args, obj.props, obj.extendsRef, obj.mixin, argData.injectAppContext, null);
+                                args[i][key] = this._createInstance(obj.module, obj.args, obj.props, obj.extendsRef, obj.mixin, argData.injectAppContext, argData.interfaces);
                             } else {
                                 //if object value is a literal value
                                 args[i][key] = obj;

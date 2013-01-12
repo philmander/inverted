@@ -20,7 +20,7 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
      *
      * @constructor
      * @param {Object} config
-     * @param {ProtoFactory} protoFactory
+     * @param {Object} protoFactory
      * @param {Object} originalModule The origina node module use to load node modules on the right path
      */
     var AppContext = function(config, protoFactory, originalModule) {

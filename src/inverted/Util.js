@@ -39,7 +39,7 @@ define("inverted/Util", function() {
     /**
      * Trim function just in case using older IE
      * @param {String} str
-     * @return {String} a trimmed string
+     * @return {String|null} a trimmed string
      */
     Util.trim = function(str) {
 
