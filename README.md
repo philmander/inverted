@@ -89,3 +89,16 @@ ant -Dversion=[version]
 
 <small>NB. To run on a system other than Windows you will currently need to update the ant test runner config to point 
 to a platform specific version of Phantom JS</small>
+
+##Versions
+
+The master branch should be considered as a snapshot of the latest code.
+
+Official releases can be found as tags.
+
+##Changelog
+
+###v0.2.0
+* Added support for interfaces (#3)
+* AppContext#getProto now returns a promise with success and failure callbacks (#4)
+* App config now has the option to inject the app context into a proto (#2)
