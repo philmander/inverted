@@ -10,8 +10,13 @@
  *    //do stuff
  * }
  */
-define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "inverted/Util"],
-    function(ProtoFactory, Promise, Util) {
+define("inverted/AppContext", [
+    "inverted/ProtoFactory",
+    "inverted/DependencyTree",
+    "inverted/Promise",
+    "inverted/Util"
+    ],
+    function(ProtoFactory, DependencyTree, Promise, Util) {
 
     "use strict";
 
@@ -28,6 +33,10 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
         this.config = config;
         this.protoFactory = protoFactory;
         this.originalModule = originalModule || module;
+
+        //defines if circular dependencies should throw an error or be gracefully handled
+        this.allowCircular = this.config.allowCircular || false;
+        this.modules = [];
 
         if(define.amd) {
             //pick an amd loader
@@ -96,25 +105,30 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
         }
 
         var invertedErrors = [];
+
         // walk config to get array of deps so they can be loaded if required
-        var deps = [];
-        for( var i = 0; i < protoIds.length; i++) {
+        var i, deps = [];
+        for(i = 0; i < protoIds.length; i++) {
             try {
-                deps = deps.concat(this._getDependencies(protoIds[i]));
+                deps.push(this._getDependencies(protoIds[i]));
             } catch(e) {
-                invertedErrors.push(e);
+                if(e instanceof Util.InvertedError && !e.circular) {
+                    invertedErrors.push(e);
+                } else {
+                    throw e;
+                }
             }
         }
 
         // load all dependencies before attempting to create an instance        
-        this._loader(deps, function() {
+        this._loader(this.modules, function() {
                         
             //map deps to args
-            var depMap = {};
-            for(i = 0; i < deps.length; i++) {
-                depMap[deps[i]] = arguments[i];
+            var moduleDepMap = {};
+            for(i = 0; i < self.modules.length; i++) {
+                moduleDepMap[self.modules[i]] = arguments[i];
             }
-            self.protoFactory.addDependencies(depMap);
+            self.protoFactory.addLoadedModules(moduleDepMap);
 
             var protos = [], proto;
             for(i = 0; i < protoIds.length; i++) {
@@ -122,24 +136,23 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
                     proto = self.protoFactory.getProto(protoIds[i]);
                     protos.push(proto);
                 } catch(e) {
-                    invertedErrors.push(e);
+                    if(e instanceof Util.InvertedError) {
+                        invertedErrors.push(e);
+                    } else {
+                        throw e;
+                    }
                 }
             }
 
             //notify errors
             for(i = 0; i < invertedErrors.length; i++) {
                 var e = invertedErrors[i];
-                if(e instanceof Util.InvertedError) {
-                    //execute inverted errors in the callback
-                    if(typeof onError === "function") {
-                        onError.call(self, e);
-                    }
-                    promise.notifyFailure(e);
-                    e.print();
-                } else {
-                    //throw all others
-                    throw e;
+                //execute inverted errors in the callback
+                if(typeof onError === "function") {
+                    onError.call(self, e);
                 }
+                promise.notifyFailure(e);
+                e.print();
             }
 
             //notify success
@@ -156,32 +169,49 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
      * Creates an array of dependencies by walking the dependency tree
      * 
      * @param {String} id
-     * @param {Array} deps The function recursivley creates an array of dependencies
-     * @return {Array} An array of module names which are dependencies
+     * @param {Object} depTree The function recursively creates a tree of dependencies
+     * @return {Object} A tree of protos config objects which are dependencies
      */
-    AppContext.prototype._getDependencies = function(id, deps) {
+    AppContext.prototype._getDependencies = function(id, depTree) {
 
-        deps = deps || [];
+        depTree = depTree || new DependencyTree();
+
         var protoConfig = this.protoFactory.getProtoConfig(id);
 
-        deps.push(protoConfig.module);
+        try {
+            depTree.addProto(id);
+
+            //save the module
+            if(Util.inArray(protoConfig.module, this.modules) < 0) {
+                this.modules.push(protoConfig.module);
+            }
+        } catch(e) {
+            //handle circular dependencies
+            if(e.circular && this.allowCircular) {
+                return depTree;
+            } else {
+                throw e;
+            }
+        }
+
+        var nextNode = depTree.addChild();
 
         // inheritance
         if(protoConfig.extendsRef) {
             var extendsRef = Util.parseProtoReference(protoConfig.extendsRef).protoId;
-            deps = this._getDependencies(extendsRef, deps);
+            this._getDependencies(extendsRef, nextNode);
         }
 
         //args
         if(protoConfig.args) {
-            deps = this._getDependenciesFromArgs(protoConfig.args, deps);
+           this._getDependenciesFromArgs(protoConfig.args, nextNode);
         }
 
         //props
         if(protoConfig.props) {
             for( var propName in protoConfig.props) {
                 if(protoConfig.props.hasOwnProperty(propName)) {
-                    deps = this._getDependenciesFromArgs([ protoConfig.props[propName] ], deps);
+                    this._getDependenciesFromArgs([ protoConfig.props[propName] ], nextNode);
                 }
             }
         }
@@ -193,21 +223,21 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
                 currentMixin = protoConfig.mixin[i];
                 mixinRef = typeof currentMixin === "string" ? currentMixin : currentMixin.ref;
                 mixinRef = Util.parseProtoReference(mixinRef).protoId;
-                deps = this._getDependencies(mixinRef, deps);
+                this._getDependencies(mixinRef, nextNode);
             }
         }
 
-        return deps;
+        return depTree;
     };
 
     /**
      * Gets an array of dependencies from arguments config
      * 
      * @param {Array} confArgs An array of arguments
-     * @param {Array} deps
-     * @return {Array}
+     * @param {Object} depNode
+     * @return {Object}
      */
-    AppContext.prototype._getDependenciesFromArgs = function(confArgs, deps) {
+    AppContext.prototype._getDependenciesFromArgs = function(confArgs, depNode) {
 
         if(confArgs) {
             var ref;
@@ -223,13 +253,15 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
                 // if arg has ref
                 if((isObject && argData.ref) || Util.matchProtoRefString(argData)) {
                     ref = Util.parseProtoReference(argData.ref || argData.substr(1)).protoId;
-                    deps = this._getDependencies(ref, deps);
+                    this._getDependencies(ref, depNode);
                 }
                 else if(isObject && argData.factoryRef) {
-                    deps = this._getDependencies(argData.factoryRef, deps);
+                    this._getDependencies(argData.factoryRef, depNode);
                 }
                 else if(isObject && argData.module) {
-                    deps.push(argData.module);
+                    depNode.addProto({
+                        module: argData.module
+                    });
                 }
                 else if(isObject) {
                     // if arg is object containing values
@@ -238,20 +270,22 @@ define("inverted/AppContext", [ "inverted/ProtoFactory", "inverted/Promise", "in
                             var obj = argData[key];
                             if(obj && (obj.ref || Util.matchProtoRefString(obj))) {
                                 ref = Util.parseProtoReference(obj.ref || obj.substr(1)).protoId;
-                                deps = this._getDependencies(ref, deps);
+                                this._getDependencies(ref, depNode);
                             }
                             else if(obj && obj.factoryRef) {
-                                deps = this._getDependencies(obj.factoryRef, deps);
+                                this._getDependencies(obj.factoryRef, depNode);
                             }
                             else if(obj && obj.module) {
-                                deps.push(obj.module);
+                                depNode.addProto({
+                                    module: obj.module
+                                });
                             }
                         }
                     }
                 }
             }
         }
-        return deps;
+        return depNode;
     };
 
     /**

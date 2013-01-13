@@ -109,15 +109,19 @@ define(function() {
             },
             circular1: {
                 module: "A",
-                props: {
-                    a: "*circular2"
-                }
+                extendsRef: "circular2",
+                args: [ "*c" ]
             },
             circular2: {
                 module: "A",
                 props: {
-                    a: "*circular1"
+                    a: "*circular3",
+                    b: "*b"
                 }
+            },
+            circular3: {
+                module: "A",
+                args: [ "*circular1" ]
             },
             x: {
                 module: "X" //shouldn't exist
@@ -144,7 +148,7 @@ define(function() {
                 mixin:[
                     "mixinToMixOne",
                     {
-                        ref: "mixinToMixTwo",
+                        ref: "mixinToMixTwo"
                     }
                 ]
             },

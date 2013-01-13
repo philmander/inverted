@@ -52,6 +52,7 @@
 				<file name="package/intro.js" />
                 <file name="inverted/Util.js" />
                 <file name="inverted/Promise.js" />
+                <file name="inverted/DependencyTree.js" />
 				<file name="inverted/ProtoFactory.js" />
 				<file name="inverted/AppContext.js" />
                 <file name="package/define.js" />

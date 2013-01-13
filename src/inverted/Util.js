@@ -20,6 +20,7 @@ define("inverted/Util", function() {
 
     /**
      * Taken directly from jquery
+     * return {Int} the position of the element in the array
      */
     Util.inArray = function(elem, array) {
 
@@ -92,7 +93,7 @@ define("inverted/Util", function() {
     Util.warn = function(e) {
         if(typeof console !== "undefined" && console.warn) {
             if(e instanceof Error) {
-                console.warn(e.message);
+                console.warn(e.message, e);
             } else {
                 console.warn(e);
             }

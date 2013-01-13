@@ -27,7 +27,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
      * Adds dependency id to object/function mappings to the internal dependency map
      * @param {Object} depMap   adds a map of dependencies to the existing dependency map cache
      */
-    ProtoFactory.prototype.addDependencies = function(depMap) {
+    ProtoFactory.prototype.addLoadedModules = function(depMap) {
         
         for(var depId in depMap) {
             if(depMap.hasOwnProperty(depId)) {
@@ -285,14 +285,14 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
 
         // extend prototype
         proto.prototype = superProto;
-        proto.prototype._super = superProto.constructor;
+        proto.prototype.__super__ = superProto.constructor;
 
         // put methods back
         for( var methodBackup in methods) {
             proto.prototype[methodBackup] = methods[methodBackup];
         }
 
-        // fix the contructor
+        // fix the constructor
         proto.prototype.constructor = proto;
     };
 
