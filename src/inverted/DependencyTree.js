@@ -30,14 +30,14 @@ define("inverted/DependencyTree", ["inverted/Util"], function(Util) {
         return this.parent;
     };
 
-    DependencyNode.prototype.addProto = function(id, instance) {
+    DependencyNode.prototype.checkForCircular = function(id) {
 
-        var checkForCircular = function(node, protoId) {
+        var check = function(node, protoId) {
 
             if(node !== null) {
                 var i, protoConf = null;
                 for(i = 0; i < node.protos.length; i++) {
-                    if(node.protos[i].id === protoId) {
+                    if(node.protos[i].id && node.protos[i].id === protoId) {
                         protoConf =  node.protos[i];
                         break;
                     }
@@ -45,20 +45,25 @@ define("inverted/DependencyTree", ["inverted/Util"], function(Util) {
                 if(protoConf) {
                     return protoConf;
                 } else {
-                    return checkForCircular(node.parent, protoId);
+                    return check(node.parent, protoId);
                 }
             }
             return null;
         };
 
-        var circularOrigin = checkForCircular(this.parent, id);
-        if(circularOrigin) {
-            var circularError = new Util.createError("Circular dependency detected for [" + id + "]");
-            circularError.originalInstance = circularOrigin.instance;
-            circularError.circular = true;
-            throw circularError;
-        }
+        return check(this.parent, id);
+    };
 
+    DependencyNode.prototype.addProto = function(id, instance, checkForCircular) {
+        checkForCircular = checkForCircular || false;
+        if(checkForCircular) {
+            var circularOrigin = this.checkForCircular(id);
+            if(circularOrigin) {
+                var circularError = new Util.createError("Circular dependency detected for [" + id + "]");
+                circularError.circular = true;
+                throw circularError;
+            }
+        }
         this.protos.push({
             id: id,
             instance: instance || null

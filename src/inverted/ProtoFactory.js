@@ -1,7 +1,7 @@
 /**
  * The proto factory is responsible for creating instances of defined objects using the config tree
  */
-define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
+define("inverted/ProtoFactory", [ "inverted/DependencyTree", "inverted/Util" ], function(DependencyTree, Util) {
 
     "use strict";
 
@@ -19,19 +19,20 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
         this.injectAppContext = this.config.injectAppContext === true ? true : false;
 
         //cache of loaded dependencies
-        this.dependencyMap = {};
+        this.moduleMap = {};
     };
 
 
     /**
      * Adds dependency id to object/function mappings to the internal dependency map
-     * @param {Object} depMap   adds a map of dependencies to the existing dependency map cache
+     * @param {Object} map   adds a map of dependencies to the existing dependency map cache
      */
-    ProtoFactory.prototype.addLoadedModules = function(depMap) {
-        
-        for(var depId in depMap) {
-            if(depMap.hasOwnProperty(depId)) {
-                this.dependencyMap[depId] = depMap[depId];                
+    ProtoFactory.prototype.addLoadedModules = function(map) {
+
+        //joins the objects
+        for(var depId in map) {
+            if(map.hasOwnProperty(depId)) {
+                this.moduleMap[depId] = map[depId];
             }
         }
     };
@@ -41,23 +42,37 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
      * The parsing also looks for an optional interface id using square brackets notation. E.g. protoId[interfaceId]
      * 
      * @param {String} protoRef a proto reference string
+     * @param {Object} depTree
      * @return {Object} A reference to a javascript object
      */
-    ProtoFactory.prototype.getProto = function(protoRef) {
+    ProtoFactory.prototype.getProto = function(protoRef, depTree) {
+
+        depTree = depTree || new DependencyTree();
 
         var protoData = Util.parseProtoReference(protoRef);
         var protoConf = this.getProtoConfig(protoData.protoId);
 
+        var circularConf = depTree.checkForCircular(protoConf.protoId);
+        if(circularConf) {
+            //TODO: need to inject circular references
+            depTree.addProto(protoData.protoId);
+            return null;
+        }
+
+        //add the dependency to the dependency tree.
+        depTree.addProto(protoConf.protoId);
+
         var instance = null;
+        var nextNode = depTree.addChild();
 
         // for static just get a reference
         if(protoConf.scope === "static") {
 
             if(typeof protoConf.module === "string") {
-                instance = this.dependencyMap[protoConf.module];
+                instance = this.moduleMap[protoConf.module];
             }
-        // create an instance if not singleton or singleton and no instance
-        // defined yet (lazy loaded singletons)
+        // create an instance if not singleton or
+        // singleton and no instance created yet (lazy loaded singletons)
         } else if((!protoConf.scope || protoConf.scope !== "singleton") ||
                 (protoConf.scope === "singleton" && !protoConf.instance)) {
 
@@ -65,8 +80,7 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
                 this.injectAppContext === true && protoConf.injectAppContext !== false ||
                 this.injectAppContext !== true && protoConf.injectAppContext === true;
 
-            instance = this._createInstance(protoConf.module, protoConf.args, protoConf.props, protoConf.extendsRef,
-                                            protoConf.mixin, injectAppContext, protoData.interfaces);
+            instance = this._createInstance(protoData.protoId, protoConf, protoData.interfaces, injectAppContext, nextNode);
 
             // save instance if singleton
             if(protoConf.scope && protoConf.scope === "singleton") {
@@ -85,25 +99,23 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
      * Uses factory config to create a new instance
      *
      * @param {String} protoId {String|Object} this might be a string or an proto
-     * @param {Array} argData
-     * @param {Object} propData
-     * @param {String} extendsRef
-     * @param {Object} mixin
-     * @param {Boolean} injectAppContext
+     * @param {Object} protoConf
      * @param {Array} interfaces
+     * @param {Boolean} injectAppContext
+     * @param {Object} depTree
      * @return {Object}
      */
-    ProtoFactory.prototype._createInstance = function(protoId, argData, propData, extendsRef, mixin, injectAppContext, interfaces) {
+    ProtoFactory.prototype._createInstance = function(protoId, protoConf, interfaces, injectAppContext, depTree) {
 
         var instance = null;
-        var proto = this.dependencyMap[protoId];
+        var proto = this.moduleMap[protoConf.module];
 
         // constructor injection
-        var args = this._createArgs(argData);
+        var args = this._createArgs(protoConf.args, depTree);
 
         // inheritance
-        if(extendsRef) {
-            this._extendProto(proto, this.getProto(extendsRef));
+        if(protoConf.extendsRef) {
+            this._extendProto(proto, this.getProto(protoConf.extendsRef, depTree));
         }
 
         //check implementation
@@ -152,10 +164,11 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
         }
 
         // property injection
-        if(propData) {
+        if(protoConf.props) {
+            var propData = protoConf.props;
             for( var propName in propData) {
                 if(propData.hasOwnProperty(propName)) {
-                    var propertyArgs = this._createArgs([ propData[propName] ]);
+                    var propertyArgs = this._createArgs([ propData[propName] ], depTree);
 
                     if(typeof instance[propName] === "function") {
                         propertyArgs[0] = Util.isArray(propertyArgs[0]) ? propertyArgs[0] : [ propertyArgs[0] ];
@@ -169,13 +182,14 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
         }
 
         // mixins {
-        if(mixin && mixin.length) {
+        if(protoConf.mixin && protoConf.mixin.length) {
+            var mixin = protoConf.mixin;
             var i, len = mixin.length, currentMixin, mixinRef, override;
             for(i = 0; i < len; i++) {
                 currentMixin = mixin[i];
                 mixinRef = typeof currentMixin === "string" ? currentMixin : currentMixin.ref;
                 override = typeof currentMixin.override === "boolean" ? currentMixin.override : true;
-                this._mixin(instance, this.getProto(mixinRef), mixinRef, override);
+                this._mixin(instance, this.getProto(mixinRef, depTree), mixinRef, override);
             }
         }
 
@@ -190,13 +204,14 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
     /**
      * Uses factory config to create a new instance
      * 
-     * @param factoryRef
-     * @param factoryMethod
-     * @return
+     * @param {String} factoryRef
+     * @param {String} factoryMethod
+     * @param {Object} depTree
+     * @return {Object}
      */
-    ProtoFactory.prototype._getProtoFromFactory = function(factoryRef, factoryMethod) {
+    ProtoFactory.prototype._getProtoFromFactory = function(factoryRef, factoryMethod, depTree) {
 
-        var factory = this.getProto(factoryRef);
+        var factory = this.getProto(factoryRef, depTree);
 
         if(factoryMethod) {
             return factory[factoryMethod].apply(factory);
@@ -209,9 +224,10 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
      * Scans arg config for values, generating dependencies where required
      * 
      * @param {Array} confArgs
+     * @param {Object} depTree
      * @return {Array}
      */
-    ProtoFactory.prototype._createArgs = function(confArgs) {
+    ProtoFactory.prototype._createArgs = function(confArgs, depTree) {
 
         // figure out constructors
         var args = [];
@@ -231,30 +247,29 @@ define("inverted/ProtoFactory", [ "inverted/Util" ], function(Util) {
                 if((isObject && argData.ref) || Util.matchProtoRefString(argData)) {
                     // if arg has references another proto
                     ref = argData.ref || argData.substr(1);
-                    args[i] = this.getProto(ref);
+                    args[i] = this.getProto(ref, depTree);
                 } else if(isObject && argData.factoryRef) {
                     // if arg uses a factory
-                    args[i] = this._getProtoFromFactory(argData.factoryRef, argData.factoryMethod);
+                    args[i] = this._getProtoFromFactory(argData.factoryRef, argData.factoryMethod, depTree);
                 } else if(isObject && argData.module) {
                     // if arg uses an anonymous proto
-                    args[i] = this._createInstance(argData.module, argData.args, argData.props, argData.extendsRef, argData.mixin,  argData.injectAppContext, argData.interfaces);
+                    args[i] = this._createInstance("[anonymous]", argData, [], argData.injectAppContext, depTree);
                 } else if(isObject) {
                     args[i] = {};
                     // if arg is object containing values
                     for( var key in argData) {
                         if(argData.hasOwnProperty(key)) {
                             var obj = argData[key];
-
                             if(obj && (obj.ref || Util.matchProtoRefString(obj))) {
                                 // if object value is a reference
                                 ref = obj.ref || obj.substr(1);
-                                args[i][key] = this.getProto(ref);
+                                args[i][key] = this.getProto(ref, depTree);
                             } else if(obj && obj.factoryRef) {
                                 // if object value uses a factory
-                                args[i][key] = this._getProtoFromFactory(obj.factoryRef, obj.factoryMethod);
+                                args[i][key] = this._getProtoFromFactory(obj.factoryRef, obj.factoryMethod, depTree);
                             } else if(obj && obj.module) {
                                 // if object value is an anonymous proto
-                                args[i][key] = this._createInstance(obj.module, obj.args, obj.props, obj.extendsRef, obj.mixin, argData.injectAppContext, argData.interfaces);
+                                args[i][key] =  this._createInstance("[anonymous]", obj, [], obj.injectAppContext, depTree);
                             } else {
                                 //if object value is a literal value
                                 args[i][key] = obj;

@@ -361,11 +361,21 @@
         });
 
 
-    test("circular", 1, function() {
+    test("circularNotAllowed", 1, function() {
+        appContext.allowCircular = false;
         throws(function() {
-            appContext.getProto(["circular1"], function(circular1) {
+            appContext.getProto("circular1", function(circular1) {
 
             });
+        });
+    });
+
+    asyncTest("circularAllowed", 1, function() {
+
+        appContext.allowCircular = true;
+        appContext.getProto("circular1", function(circular1) {
+            assertTrue(true);
+            start();
         });
     });
 

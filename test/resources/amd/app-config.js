@@ -109,8 +109,10 @@ define(function() {
             },
             circular1: {
                 module: "A",
-                extendsRef: "circular2",
-                args: [ "*c" ]
+                props: {
+                    a: "*circular2",
+                    b: "*b"
+                }
             },
             circular2: {
                 module: "A",

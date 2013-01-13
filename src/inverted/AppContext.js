@@ -179,7 +179,7 @@ define("inverted/AppContext", [
         var protoConfig = this.protoFactory.getProtoConfig(id);
 
         try {
-            depTree.addProto(id);
+            depTree.addProto(id, null, true);
 
             //save the module
             if(Util.inArray(protoConfig.module, this.modules) < 0) {
