@@ -52,16 +52,6 @@ define("inverted/ProtoFactory", [ "inverted/DependencyTree", "inverted/Util" ], 
         var protoData = Util.parseProtoReference(protoRef);
         var protoConf = this.getProtoConfig(protoData.protoId);
 
-        var circularConf = depTree.checkForCircular(protoConf.protoId);
-        if(circularConf) {
-            //TODO: need to inject circular references
-            depTree.addProto(protoData.protoId);
-            return null;
-        }
-
-        //add the dependency to the dependency tree.
-        depTree.addProto(protoConf.protoId);
-
         var instance = null;
         var nextNode = depTree.addChild();
 
@@ -109,6 +99,14 @@ define("inverted/ProtoFactory", [ "inverted/DependencyTree", "inverted/Util" ], 
 
         var instance = null;
         var proto = this.moduleMap[protoConf.module];
+
+        //check for circular dependencies
+        var circularConf = depTree.checkForCircular(protoId);
+        if(circularConf) {
+            //TODO: need to inject circular references
+            depTree.addProto(protoId, circularConf.instance);
+            return circularConf.instance;
+        }
 
         // constructor injection
         var args = this._createArgs(protoConf.args, depTree);
@@ -162,6 +160,10 @@ define("inverted/ProtoFactory", [ "inverted/DependencyTree", "inverted/Util" ], 
         default:
             throw Util.createError("Could not instantiate proto. Instances have a 10 arg limit");
         }
+
+        //add the dependency to the dependency tree.
+        depTree.addProto(protoId, instance);
+
 
         // property injection
         if(protoConf.props) {

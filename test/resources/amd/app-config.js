@@ -110,20 +110,23 @@ define(function() {
             circular1: {
                 module: "A",
                 props: {
-                    a: "*circular2",
-                    b: "*b"
+                    a: 1,
+                    b: "*circular2"
                 }
             },
             circular2: {
                 module: "A",
                 props: {
-                    a: "*circular3",
-                    b: "*b"
+                    a: 2,
+                    b: "*circular3"
                 }
             },
             circular3: {
                 module: "A",
-                args: [ "*circular1" ]
+                args: [ "*circular1" ],
+                props: {
+                    a: 3
+                }
             },
             x: {
                 module: "X" //shouldn't exist
