@@ -8,7 +8,7 @@ Runs in the browser and Node.js
 
 Download source
 
-[Minified (~4.8kb/~1.7kb gzipped)](https://raw.github.com/philmander/inverted/master/lib/inverted-min.js)
+[Minified (~9.4kb/~3.2kb gzipped)](https://raw.github.com/philmander/inverted/master/lib/inverted-min.js)
 
 [Uncompressed](https://raw.github.com/philmander/inverted/master/lib/inverted.js)
 
@@ -47,7 +47,7 @@ require(["inverted", "app-config"], function(inverted, appConfig) {
 
 ##Issues and discussion
 
-Please use the Github issue tracker for this project to raise bugs, feature requests or just ask a question.
+Please use the Github [issue tracker](https://github.com/philmander/inverted/issues) for this project to raise bugs, feature requests or just ask a question.
 
 ##Project organization
 
@@ -55,7 +55,7 @@ Please use the Github issue tracker for this project to raise bugs, feature requ
 Core source code is here, split into two sub directories:
 
 * __package__ Files added to the core source code to create a working build
-* __inverted__ The Inverted JS modules, _AppContext_ and _ProtoFactory_
+* __inverted__ The main Inverted JS modules, _AppContext_ and _ProtoFactory_ and various support modules
 
 ###/lib 
 Final builds are placed here
@@ -98,11 +98,12 @@ Official releases can be found as tags.
 
 ##Changelog
 
-###v0.2.0
+###v0.2.*
 * __BREAKING CHANGE__ <code>AppContext#getProto</code> interface has changed. More than one proto id must be now specified as an array of strings in the first argument. A single proto id may remain as a string 
 * Added support for mixin dependecies (issue #6)
 * Added support for interfaces (issue #3)
 * AppContext#getProto now returns a promise with success and failure callbacks (issue #4)
 * Improved error handling
 * App config now has the option to inject the app context into a proto (#2)
+* Now supports circular dependencies
 
