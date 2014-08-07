@@ -7,5 +7,5 @@
  * Licensed under the MIT license
  */
 if (typeof define !== 'function') {
-    define = require('amdefine')(module)
+    var define = require('amdefine')(module);
 }
