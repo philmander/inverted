@@ -1,6 +1,6 @@
 {
     "name": "inverted",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "homepage": "http://philmander.github.com/inverted/",
     "author": "Phil Mander <philip.mander@gmail.com>",
     "description" : "Inverted is an Inversion of Control container. It uses a separate configuration file to express how classes are instantiated and how they interact. Once these defaults and relationships have been defined, an application context can be created, and instances of the classes can be used.",
